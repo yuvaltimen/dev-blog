@@ -7,9 +7,9 @@ title: Projects
 <ul>
     {% for project in site.projects %}
         <li>
-            <h2><a href="{{ project.url | relative_url }}">{{ project.title }}</a></h2>
+            <h2><a href="{{ site.baseurl }}{{ project.url }}">{{ project.title }}</a></h2>
             {%- if project.media -%}
-            <img src="{{ project.media | relative_url }}" width="200" />
+            <img src="{{ site.baseurl }}{{ project.media }}" width="200" />
             {%- endif -%}
         </li>
     {% endfor %}
