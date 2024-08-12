@@ -18,9 +18,11 @@ You name it.
 And when I do sink my teeth into my next victim, I often find 
 that I need an outlet in to synthesize my thoughts about what I'm reading or doing. 
 
-I've often found a lot of pleasure in just spending a day hacking away on a Markdown
-document to fully flesh out my ideas, to nail down my understanding about a topic, or just
+<!-- excerpt-start -->
+I've often found a lot of pleasure in just spending a day hacking away on a Markdown 
+document to fully flesh out my ideas, to nail down my understanding about a topic, or just 
 to see the swirling mass of figures and pictures in my head materialize in front of me.
+<!-- excerpt-end -->
 
 This is why I created this blog. The purpose of it is to serve my purposes of organizing my 
 brain in a way that is presentable to me and to anyone else who may stumble upon it. 
