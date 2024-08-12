@@ -3,7 +3,6 @@ layout: default
 title: This Developer Blog
 subtitle: (Very Meta, I Know)
 media: /assets/images/glasses_emoji.png
-
 ---
 
 # {{ page.title }}
