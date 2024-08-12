@@ -2,7 +2,6 @@
 layout: post
 title:  "What is this place...?"
 date:   2024-08-11 16:50:01 -0400
-categories: jekyll update
 ---
 
 I'm someone who gets obsessed with things. What things? Well, to name a few... 

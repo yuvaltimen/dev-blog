@@ -28,8 +28,10 @@ github_username:  yuvaltimen
 linkedin_username: yuval-timen
 
 collections:
+  posts:
   projects:
     output: true
+
 
 excerpt_separator: <!-- excerpt-end -->
 
