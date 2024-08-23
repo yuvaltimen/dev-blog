@@ -7,10 +7,12 @@ title: Projects
 <ul>
     {% for project in site.projects %}
         <li>
-            <h2><a href="{{ site.baseurl }}{{ project.url }}">{{ project.title }}</a></h2>
-            {%- if project.media -%}
-            <img src="{{ site.baseurl }}{{ project.media }}" width="200" />
-            {%- endif -%}
+            <div>
+                <h2><a href="{{ site.baseurl }}{{ project.url }}">{{ project.title }}</a></h2>
+                {%- if project.media -%}
+                <img src="{{ site.baseurl }}{{ project.media }}" height="50"/>
+                {%- endif -%}
+            </div>
         </li>
     {% endfor %}
 </ul>

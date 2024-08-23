@@ -1,15 +1,10 @@
 ---
-layout: default 
+layout: project
 title: This Developer Blog
 subtitle: (Very Meta, I Know)
+github_link: https://github.com/yuvaltimen/dev-blog
 media: /assets/images/glasses_emoji.png
 ---
-
-# {{ page.title }}
-### {{ page.subtitle }}
-
-All the code for this project is available on my GitHub page [here]({{ page.github_link }}).
-
 
 ## 1. Getting Set Up
 For this project, I followed [Jekyll's Step by Step Tutorial](https://jekyllrb.com/docs/step-by-step/01-setup/).

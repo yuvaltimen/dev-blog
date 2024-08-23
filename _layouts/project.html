@@ -1,0 +1,16 @@
+---
+layout: default
+---
+
+<h1>{{ page.title }}</h1>
+<h2 style="font-style: italic;">{{ page.subtitle }}</h2>
+
+{%- if page.media -%}
+<img src="{{ site.baseurl }}{{ page.media }}" height="150"/>
+{%- endif -%}
+{%- if page.github_link -%}
+<p>All the code for this project is available on my GitHub page <a href="{{ page.github_link }}">here</a>.</p>
+{%- endif -%}
+
+
+{{ content }}
