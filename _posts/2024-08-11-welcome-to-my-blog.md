@@ -15,7 +15,7 @@ I'm someone who gets obsessed with things. What things? Well, to name a few...
 You name it.
 
 And when I do sink my teeth into my next victim, I often find 
-that I need an outlet in to synthesize my thoughts about what I'm reading or doing. 
+that I need an outlet in order to synthesize my thoughts about what I'm reading or doing. 
 
 <!-- excerpt-start -->
 I've often found a lot of pleasure in just spending a day hacking away on a Markdown 
