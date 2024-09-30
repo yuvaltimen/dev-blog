@@ -153,7 +153,36 @@ root@45.33.90.24: Permission denied (publickey).
 
 Nice! Permission denied, just like we hoped for.
 
-#### Installing Docker 
+#### Setting Up a Firewall
+Controlling incoming and outgoing network requests is an essential part of securing the server. Luckily, Ubuntu has a 
+really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`all. This is the configuration I used:
+
+```bash
+# Disable all inbound network requests by default
+>> sudo ufw default deny incoming
+
+# Enable all outbound network requests by default
+>> sudo ufw default allow outgoing
+
+# Enable inbound requests to OpenSSH server, to allow SSH'ing into the VPS 
+# Also enable inbound requests to the web server ports 80 and 8080
+>> sudo ufw allow OpenSSH
+>> sudo ufw allow 80
+>> sudo ufw allow 8080
+
+# Check all the firewall rules applied thus far
+>> sudo ufw show added
+
+# Enable the firewall - will prompt for confirmation (y|n)? 
+>> sudo ufw enable
+
+# Check the status of the firewall
+>> sudo ufw status
+```
+
+
+
+## Installing Docker 
 Since I'm using Ubuntu, I'll follow the instructions on the 
 [official Docker Docs](https://docs.docker.com/engine/install/ubuntu/) for installing Docker on Ubuntu systems. 
 (I've slightly modified these commands for my own purposes):
@@ -192,4 +221,11 @@ Docker command:
 >> docker run hello-world
 ```
 
+## Enabling Traefik as a Reverse Proxy
+There's a weird little quirk when it comes to using Docker with `ufw`, and that is that using a Docker `EXPOSE <port>`
+directive, or any port mappings in a docker-compose file will actually override the `ufw` firewall rules.  
 
+
+## References
+- Dreams of Code's [video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on Setting up a production-ready VPS
+- Docker's [guide](https://docs.docker.com/engine/install/ubuntu/) on setting up Docker Engine with Ubuntu
