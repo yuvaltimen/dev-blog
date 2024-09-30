@@ -124,7 +124,8 @@ ANYWHERE, and another public key at `~/.ssh/id_ed25519.pub` which is to be copie
 This will SSH into the remote machine at `yuvaltimen.xyz` using the user `ytimen` and add the public key corresponding 
 to `~/.ssh/id_ed25519` (in this case, `~/.ssh/authorized_keys.pub`) to the remote user's `~/.ssh/authorized_keys`. 
 
-Now that I've added my public key, let's go ahead and disable password-based auth. I'll open up my sshd_config file:
+Now that I've added my public key, let's go ahead and disable password-based auth and non-root logins. I'll open up my 
+sshd_config file:
 
 ```bash 
 >> sudo vim /etc/ssh/sshd_config
@@ -135,3 +136,60 @@ and set the following options, making sure to save the file after editing:
 - `PasswordAuthentication no`
 - `PermitRootLogin no`
 - `UsePAM no`
+
+Now, I'll apply these changes by restarting the ssh service:
+
+```bash
+>> sudo systemctl reload ssh 
+```
+
+I can confirm that this works by attempting to ssh in as the root user:
+
+```bash 
+>> ssh root@yuvaltimen.xyz
+
+root@45.33.90.24: Permission denied (publickey). 
+```
+
+Nice! Permission denied, just like we hoped for.
+
+#### Installing Docker 
+Since I'm using Ubuntu, I'll follow the instructions on the 
+[official Docker Docs](https://docs.docker.com/engine/install/ubuntu/) for installing Docker on Ubuntu systems. 
+(I've slightly modified these commands for my own purposes):
+
+1. Set up Docker's `apt` repository.
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+```
+
+2. Install the Docker packages.
+```bash
+>> sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+3. I'll add my user to the Docker group to avoid needing to `sudo` every 
+Docker command:
+```bash
+>> sudo usermod -aG docker ytimen
+```
+
+4. Verify that the Docker Engine and Docker Compose Plugin installations are successful.
+```bash 
+>> docker --version && docker compose version
+>> docker run hello-world
+```
+
+
