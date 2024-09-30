@@ -180,7 +180,10 @@ really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`a
 >> sudo ufw status
 ```
 
-
+This is all nice and good, but when eventually using Docker, it's important to note that there's a problem with using 
+Docker with `ufw`, discussed in the section titled "Configuring Traefik as a Reverse Proxy and HTTPS Termination Proxy" 
+later in this guide. For now, all we need to note is that exposing Docker ports will actually override `ufw`'s configs, 
+so we need to be careful not to run Docker files with exposed ports on the server.
 
 ## Installing Docker 
 Since I'm using Ubuntu, I'll follow the instructions on the 
@@ -221,11 +224,57 @@ Docker command:
 >> docker run hello-world
 ```
 
-## Enabling Traefik as a Reverse Proxy
+## Configuring Traefik as a Reverse Proxy and HTTPS Termination Proxy
 There's a weird little quirk when it comes to using Docker with `ufw`, and that is that using a Docker `EXPOSE <port>`
-directive, or any port mappings in a docker-compose file will actually override the `ufw` firewall rules.  
+directive, or any port mappings in a docker-compose file will actually override the `ufw` firewall rules. There are many 
+ways to get around this, but I'll go with configuring Traefik as a reverse proxy, so that I don't actually need to expose 
+any Docker ports. This will have the added benefit of helping me down the road with HTTPS Certificate renewals, woohoo! 
+
+```yaml
+services:
+  api-service:  
+    image: <docker-image-version>
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api-service.rule=Host(`yuvaltimen.xyz`)"
+      - "traefik.http.routers.api-service.entrypoints=websecure"
+      - "traefik.http.routers.api-service.tls.certresolver=myresolver"
+    ...
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      # Allow the Web UI for Traefik dashboard to be accessed over HTTP
+      - "--api.insecure=true"
+      - "--providers.docker"
+      # Prevents any Docker containers by being exposed by default
+      - "--providers.docker.exposedbydefault=false"
+      # Use the HTTPS port for secure connections entrypoint
+      - "--entryPoints.websecure.address=:443"
+      # Add arguments for Traefik to configure a certificate resolver called 'myresolver'
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=ytimen@yuvaltimen.xyz"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # Add arguments to forward any requests to default web port 80 to HTTPS port 443
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      # HTTP(S) ports
+      - "80:80"
+      - "443:443"
+      # The Web UI (enabled by api.insecure=true)
+      - "8080:8080"
+    volumes:
+      - letsencrypt:/letsencrypt
+      # Allows Traefik to listen to Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+volumes:
+  letsencrypt:
+  ...
+```
+
 
 
 ## References
-- Dreams of Code's [video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on Setting up a production-ready VPS
+- Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on Setting up a production-ready VPS
 - Docker's [guide](https://docs.docker.com/engine/install/ubuntu/) on setting up Docker Engine with Ubuntu
