@@ -4,9 +4,11 @@ title:  "Securing a Linux Server for Production"
 date:   2024-09-30 13:34:01 -0400
 ---
 
+<!-- excerpt-start -->
 Let's be honest. Platform as a Service (PaaS) providers overcharge for a lot of their services. 
-It makes sense - they need to make money _somehow_. But not on my dime! I'm going to set up my own
+It makes sense - they need to make money _somehow_. But not on my dime! I'm going to set up my own 
 Virtual Private Server (VPS) for self-hosting, and I'm gonna do it on the cheap. 
+<!-- excerpt-end -->
 
 ## Provisioning the Server
 The first step is to provision the actual server. Normally, I'd use Terraform or the like, but for simplicity, 
@@ -101,7 +103,7 @@ and I can focus on basic security measures. That being said, if your server cont
 go to greater lengths to secure access to your machine. 
 
 #### Getting Rid of Password-Based Logins
-Passwords are less secure than SSH-Keys, because they can be brute-forced. Or worse, you might be one of thsoe 
+Passwords are less secure than SSH-Keys, because they can be brute-forced. Or worse, you might be one of those 
 knuckleheads that uses a password like "password", which most hackers will try to guess first before even trying to 
 brute-force anything else. Meanwhile, SSH-Keys are much harder to crack, and while they do have their weaknesses, they 
 are considered more secure than password-based logins. 
