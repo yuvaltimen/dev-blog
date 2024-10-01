@@ -13,14 +13,14 @@ Virtual Private Server (VPS) for self-hosting, and I'm gonna do it on the cheap.
 ## Provisioning The Server
 The first step is to provision the actual server. Normally, I'd use Terraform or the like, but for simplicity, 
 I'm going to use Linode's UI to get this up and running. In the future, I may write an actual `.tf` file, but this 
-blog post is about getting up and running. Securely, of course.
+blog post is about getting to production. Securely, of course.
 
-I created a "Nanode" with 1 GB RAM, 1 CPU Core, and 25 GB of storage. This is a tiny server, so I may have to re-do 
+I created a "Nanode" instance with 1 GB RAM, 1 CPU Core, and 25 GB of storage. This is a tiny server, so I may have to re-do 
 this process in the future using a bigger image. But for now, I'll take it. 
 
 
 ## Setting Up Users
-Now that I've waited for the server to be provisioned, I can see that my new server's public IP address is `45.33.90.24`. 
+After waiting a while for the server to be provisioned, I can see that my new server's public IP address is `45.33.90.24`. 
 I'm going to go ahead and SSH into it as the root user:
 
 ```bash
@@ -69,13 +69,13 @@ It's been confirmed - the new user is all set!
 ## Setting Up A Domain Name
 I bought a domain name from [Namecheap.com](https://www.namecheap.com/).
 Once I confirmed my information from their email, I was able to manage the DNS settings for the domain. 
-I used Namecheap BasicDNS since it was the cheapest and most basic option, and then proceeded to their 
+I used Namecheap's BasicDNS since it was the cheapest and most basic option, and then proceeded to their 
 Advanced DNS tab to configure the settings. 
 
 Under "Host Records", I added a new `A Record` with the "Host" set to `@` (denoting that no prefix should be used),
 and I set the "Value" of the record to be equal to the Public IP Address of my VPS. I left the TTL on "Automatic", 
 which typically defaults to 300 seconds (5 min). This TTL value dictates how long the DNS record will be cached 
-in the DNS servers for, meaning that, if I add or change a DNS record, it may take up to 5 minutes to go into effect. 
+in the DNS servers for, meaning that if I add or change a DNS record, it may take up to 5 minutes to go into effect. 
 
 I can test that this change took effect by seeing if my new hostname is resolved. In this case, the domain name that I 
 bought was `yuvaltimen.xyz`. Let's see if it got updated to point to my VPS's IP Address:
@@ -102,13 +102,13 @@ _probably_ not contain national secrets or other ultra-sensitive information, my
 and I can focus on basic security measures. That being said, if your server contains high-value information, you may need to 
 go to greater lengths to secure access to your machine. 
 
-#### Getting Rid Of Password-Based Logins
-Passwords are less secure than SSH-Keys, because they can be brute-forced. Or worse, you might be one of those 
+### 1. Getting Rid Of Password-Based Logins
+Passwords are less secure than SSH keys, because they can be brute-forced. Or worse, you might be one of those 
 knuckleheads that uses a password like "password", which most hackers will try to guess first before even trying to 
-brute-force anything else. Meanwhile, SSH-Keys are much harder to crack, and while they do have their weaknesses, they 
+brute-force anything else. Meanwhile, SSH keys are much harder to crack, and while they do have their weaknesses, they 
 are considered more secure than password-based logins. 
 
-Since I already have SSH Keys on my computer, I'll be using one of those. If you don't have keys, or if future 
+Since I already have SSH keys on my computer, I'll be using one of those. If you don't have keys, or if future 
 me decides I need to access this server from a different machine, I'd have to generate a new key-pair and copy the public 
 key to the server. This can be done through the `ssh-keygen` command, for example:
 
@@ -116,8 +116,9 @@ key to the server. This can be done through the `ssh-keygen` command, for exampl
 >>  ssh-keygen -t ed25519 -a 32 -f ~/.ssh/id_ed25519
 ```
 
-This would create a key-pair. One private key at `~/.ssh/id_ed25519` whcih you should NEVER SHARE WITH ANYONE OR COPY 
-ANYWHERE, and another public key at `~/.ssh/id_ed25519.pub` which is to be copied to the server using the following command:
+This would create a key-pair, one private and one public key. The private key created at `~/.ssh/id_ed25519` is the 
+private you secret that you should NEVER SHARE WITH ANYONE OR COPY ANYWHERE, and the public key at 
+`~/.ssh/id_ed25519.pub` is to be copied to the server using the following command:
 
 ```bash
 >> ssh-copy-id -i ~/.ssh/id_ed25519 ytimen@yuvaltimen.xyz
@@ -155,7 +156,7 @@ root@45.33.90.24: Permission denied (publickey).
 
 Nice! Permission denied, just like we hoped for.
 
-#### Setting Up A Firewall
+### 2. Setting Up A Firewall
 Controlling incoming and outgoing network requests is an essential part of securing the server. Luckily, Ubuntu has a 
 really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`all. This is the configuration I used:
 
@@ -183,25 +184,32 @@ really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`a
 ```
 
 This is all nice and good, but when eventually using Docker, it's important to note that there's a problem with using 
-Docker with `ufw`, discussed in the section titled "Configuring Traefik as a Reverse Proxy and HTTPS Termination Proxy" 
-later in this guide. For now, all we need to note is that exposing Docker ports will actually override `ufw`'s configs, 
-so we need to be careful not to run Docker files with exposed ports on the server.
+Docker with `ufw`. Essentially, exposing Docker ports will actually override `ufw`'s configs, so we need to be careful 
+not to run Docker files with exposed ports that differ from the allowed ports.
 
-#### Removing Unnecessary Software
+### 3. Removing Unnecessary Software
 There are many packages that come pre-installed with Ubuntu, and many of them I will never need on this machine. 
-I'll go ahead and remove as many of these as I can to reduce the attack surface of my server:
+I'll go ahead and remove as many of these as I can to reduce the attack surface of my server, using the command:
 
 ```bash
->> sudo apt-get purge --auto-remove telnetd ftp vsftpd samba nfs-kernel-server nfs-common
+>>  sudo apt-get purge --auto-remove <packages> 
 ```
 
+where `<packages>` is a space-separated list of apt package names. The ones I removed were:
+- `telnetd`
+- `ftp`
+- `vsftpd` 
+- `samba`
+- `nfs-kernel-server`
+- `nfs-common`
 
 ## Installing Docker 
 Since I'm using Ubuntu, I'll follow the instructions on the 
 [official Docker Docs](https://docs.docker.com/engine/install/ubuntu/) for installing Docker on Ubuntu systems. 
 (I've slightly modified these commands for my own purposes):
 
-1. Set up Docker's `apt` repository.
+### 1. Set up Docker's `apt` repository.
+
 ```bash
 # Add Docker's official GPG key:
 sudo apt-get update
@@ -218,18 +226,20 @@ echo \
 sudo apt-get update
 ```
 
-2. Install the Docker packages.
+### 2. Install the Docker packages.
+
 ```bash
 >> sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-3. I'll add my user to the Docker group to avoid needing to `sudo` every 
-Docker command:
+### 3. Add my user to the Docker group to avoid needing to `sudo` every Docker command:
+
 ```bash
 >> sudo usermod -aG docker ytimen
 ```
 
-4. Verify that the Docker Engine and Docker Compose Plugin installations are successful.
+### 4. Verify that the Docker Engine and Docker Compose Plugin installations are successful.
+
 ```bash 
 >> docker --version && docker compose version
 >> docker run hello-world
@@ -238,28 +248,23 @@ Docker command:
 ## Deploying A Program
 Now that I have the server in a relatively secure state, and have installed Docker and Docker Compose, I can run 
 programs as containers. Typically, containers are run from images, which are uploaded to a registry and tagged with 
-their version or environment name. We can refer to images by their tag or by their digest. You can think of a digest 
-as being an immutable tag that is based on the image contents. This way, we can distinguish between an exact version of 
-an image by its digest, or an aliased image by its tag. Think `<image>:prod`, `<image>:latest`, or `<image>:v1.0` for 
-tags that are aliases, whereas a digest might look like `<image>:sha256:bf05ebc48776afd98f1748ce1337bca29bdc1f45a6065bc40babbe68aebfc4ac`. 
-In fact, all of these tags could even refer to this same digest. Anyway, I'm rambling. Let's get back to deploying a 
-program. 
+their version or environment name. We can refer to images by their tag or by their digest. 
 
-First, I need a Docker image. I wrote some FastAPI endpoints along with a Dockerfile and docker-compose file in a super 
-secret private GitHub repo. Now using my local machine, I'm going to build it into an image, tag it, and upload it to 
-a private artifact registry, where it can then be pulled from other Docker machines, such as my Ubuntu server!
+You can think of a digest as being an immutable tag that is based on the image contents. This way, we can distinguish 
+between an exact version of an image by its digest, or an aliased image by its tag. Think `<image>:prod`, 
+`<image>:latest`, or `<image>:v1.0` for tags that are aliases, whereas a digest might look like 
+`<image>:sha256:bf05ebc48776afd98f1748ce1337bca29bdc1f45a6065bc40babbe68aebfc4ac`. In fact, all of these tags could even 
+refer to this same digest. Anyway, I'm rambling. Let's get back to deploying a program. 
+
+First, I need a Docker image. I wrote some FastAPI endpoints along with a `Dockerfile` and `docker-compose.yml` file in 
+a super secret private GitHub repo. Now using my local machine, I'm going to build it into an image, tag it, and upload 
+it to a private artifact registry, where it can then be pulled from other Docker machines, such as my Ubuntu server!
 
 First, let's make sure I'm logged in to my Docker account from the terminal:
 
 ```bash
 >> docker login 
 # Follow the prompts for username and password
-```
-
-In my docker-compose file, I've included an `image` key with each service, so that when I build the services, it will 
-name the images as I've specified. 
-
-```bash
 >> docker build --platform linux/amd64 -t <docker-username>/<registry-name>/<image-name>:<tag> .
 > docker push <docker-username>/<registry-name>/<image-name>:<tag>
 ```
