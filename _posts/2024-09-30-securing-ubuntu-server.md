@@ -10,9 +10,9 @@ It makes sense - they need to make money _somehow_. But not on my dime! I'm goin
 Virtual Private Server (VPS) for self-hosting, and I'm gonna do it on the cheap. 
 <!-- excerpt-end -->
 
-## Provisioning the Server
+## Provisioning The Server
 The first step is to provision the actual server. Normally, I'd use Terraform or the like, but for simplicity, 
-I'm going to use Linode's UI to get this up and running. In the future, I may write an actual .tf file, but this 
+I'm going to use Linode's UI to get this up and running. In the future, I may write an actual `.tf` file, but this 
 blog post is about getting up and running. Securely, of course.
 
 I created a "Nanode" with 1 GB RAM, 1 CPU Core, and 25 GB of storage. This is a tiny server, so I may have to re-do 
@@ -66,7 +66,7 @@ We have 2 options for doing this:
 
 It's been confirmed - the new user is all set!
 
-## Setting up a Domain Name
+## Setting Up A Domain Name
 I bought a domain name from [Namecheap.com](https://www.namecheap.com/).
 Once I confirmed my information from their email, I was able to manage the DNS settings for the domain. 
 I used Namecheap BasicDNS since it was the cheapest and most basic option, and then proceeded to their 
@@ -93,7 +93,7 @@ It worked! I can see my VPS's IP Address `45.33.90.24` returned from the `ping`,
 `yuvaltimen.xyz` was resolved to the IP Address `45.33.90.24`.
 
 
-## Hardening the Server
+## Hardening The Server
 Now that I have the server running with a Domain Name and a non-root user, I can go ahead configuring security 
 measures to harden the server. There are countless measures that can be taken, and ultimately, anything connected to the 
 internet (and even machines air-gapped from the internet) have vulnerabilities. But the goal is not to hermetically seal 
@@ -102,7 +102,7 @@ _probably_ not contain national secrets or other ultra-sensitive information, my
 and I can focus on basic security measures. That being said, if your server contains high-value information, you may need to 
 go to greater lengths to secure access to your machine. 
 
-#### Getting Rid of Password-Based Logins
+#### Getting Rid Of Password-Based Logins
 Passwords are less secure than SSH-Keys, because they can be brute-forced. Or worse, you might be one of those 
 knuckleheads that uses a password like "password", which most hackers will try to guess first before even trying to 
 brute-force anything else. Meanwhile, SSH-Keys are much harder to crack, and while they do have their weaknesses, they 
@@ -155,7 +155,7 @@ root@45.33.90.24: Permission denied (publickey).
 
 Nice! Permission denied, just like we hoped for.
 
-#### Setting Up a Firewall
+#### Setting Up A Firewall
 Controlling incoming and outgoing network requests is an essential part of securing the server. Luckily, Ubuntu has a 
 really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`all. This is the configuration I used:
 
@@ -186,6 +186,15 @@ This is all nice and good, but when eventually using Docker, it's important to n
 Docker with `ufw`, discussed in the section titled "Configuring Traefik as a Reverse Proxy and HTTPS Termination Proxy" 
 later in this guide. For now, all we need to note is that exposing Docker ports will actually override `ufw`'s configs, 
 so we need to be careful not to run Docker files with exposed ports on the server.
+
+#### Removing Unnecessary Software
+There are many packages that come pre-installed with Ubuntu, and many of them I will never need on this machine. 
+I'll go ahead and remove as many of these as I can to reduce the attack surface of my server:
+
+```bash
+>> sudo apt-get purge --auto-remove telnetd ftp vsftpd samba nfs-kernel-server nfs-common
+```
+
 
 ## Installing Docker 
 Since I'm using Ubuntu, I'll follow the instructions on the 
@@ -226,57 +235,57 @@ Docker command:
 >> docker run hello-world
 ```
 
-## Configuring Traefik as a Reverse Proxy and HTTPS Termination Proxy
-There's a weird little quirk when it comes to using Docker with `ufw`, and that is that using a Docker `EXPOSE <port>`
-directive, or any port mappings in a docker-compose file will actually override the `ufw` firewall rules. There are many 
-ways to get around this, but I'll go with configuring Traefik as a reverse proxy, so that I don't actually need to expose 
-any Docker ports. This will have the added benefit of helping me down the road with HTTPS Certificate renewals, woohoo! 
+## Deploying A Program
+Now that I have the server in a relatively secure state, and have installed Docker and Docker Compose, I can run 
+programs as containers. Typically, containers are run from images, which are uploaded to a registry and tagged with 
+their version or environment name. We can refer to images by their tag or by their digest. You can think of a digest 
+as being an immutable tag that is based on the image contents. This way, we can distinguish between an exact version of 
+an image by its digest, or an aliased image by its tag. Think `<image>:prod`, `<image>:latest`, or `<image>:v1.0` for 
+tags that are aliases, whereas a digest might look like `<image>:sha256:bf05ebc48776afd98f1748ce1337bca29bdc1f45a6065bc40babbe68aebfc4ac`. 
+In fact, all of these tags could even refer to this same digest. Anyway, I'm rambling. Let's get back to deploying a 
+program. 
 
-```yaml
-services:
-  api-service:  
-    image: <docker-image-version>
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api-service.rule=Host(`yuvaltimen.xyz`)"
-      - "traefik.http.routers.api-service.entrypoints=websecure"
-      - "traefik.http.routers.api-service.tls.certresolver=myresolver"
-    ...
-  reverse-proxy:
-    image: traefik:v3.1
-    command:
-      # Allow the Web UI for Traefik dashboard to be accessed over HTTP
-      - "--api.insecure=true"
-      - "--providers.docker"
-      # Prevents any Docker containers by being exposed by default
-      - "--providers.docker.exposedbydefault=false"
-      # Use the HTTPS port for secure connections entrypoint
-      - "--entryPoints.websecure.address=:443"
-      # Add arguments for Traefik to configure a certificate resolver called 'myresolver'
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=ytimen@yuvaltimen.xyz"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      # Add arguments to forward any requests to default web port 80 to HTTPS port 443
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-    ports:
-      # HTTP(S) ports
-      - "80:80"
-      - "443:443"
-      # The Web UI (enabled by api.insecure=true)
-      - "8080:8080"
-    volumes:
-      - letsencrypt:/letsencrypt
-      # Allows Traefik to listen to Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
-volumes:
-  letsencrypt:
-  ...
+First, I need a Docker image. I wrote some FastAPI endpoints along with a Dockerfile and docker-compose file in a super 
+secret private GitHub repo. Now using my local machine, I'm going to build it into an image, tag it, and upload it to 
+a private artifact registry, where it can then be pulled from other Docker machines, such as my Ubuntu server!
+
+First, let's make sure I'm logged in to my Docker account from the terminal:
+
+```bash
+>> docker login 
+# Follow the prompts for username and password
 ```
 
+In my docker-compose file, I've included an `image` key with each service, so that when I build the services, it will 
+name the images as I've specified. 
 
+```bash
+>> docker build --platform linux/amd64 -t <docker-username>/<registry-name>/<image-name>:<tag> .
+> docker push <docker-username>/<registry-name>/<image-name>:<tag>
+```
+
+It's necessary to include `--platform linux/amd64`, because I'm actually running these commands on a Mac, which uses 
+linux/arm64. That means that if I build an image regularly on my Mac and push it to the registry, and then tried to pull 
+that image from my Ubuntu server, it would download fine... but then it would complain about the architecture when I 
+tried to run the image. And since I'm in the business of running software, not just downloading it, I'll make sure to 
+build it with the proper platform flag. Then, I push to the registry with the tag. 
+
+Now that the registry holds the tagged image, I can SSH into the Ubuntu server and download the Docker image. I can do 
+this implicitly by running:
+
+```bash 
+>> docker run -d <docker-username>/<registry-name>/<image-name>:<tag>
+```
+
+This runs the image as a container, and I've specified the `-d` flag for detached mode (meaning it'll run in the 
+background). And thar she blows!   
+
+
+## Conclusion & Next Steps
+This guide covered provisioning a server, configuring some basic security measures, installing Docker, and running 
+an image pulled from a registry. Next time, we'll cover how to configure HTTPS to access our program securely.
 
 ## References
-- Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on Setting up a production-ready VPS
+- Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on setting up a production-ready VPS
+- Tony Teaches Tech's [guide](https://tonyteaches.tech/secure-ubuntu-server/) on securing an Ubuntu server
 - Docker's [guide](https://docs.docker.com/engine/install/ubuntu/) on setting up Docker Engine with Ubuntu
