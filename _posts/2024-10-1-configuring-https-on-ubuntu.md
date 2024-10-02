@@ -64,7 +64,7 @@ services:
       - "traefik.http.services.example_service.loadbalancer.server.port=8000"
       - "traefik.http.routers.example_service.rule=Host(`test.domain.local`)"
 
-  reverse-proxy:
+  traefik:
     image: traefik:v3.1
     command:
       - "--api.insecure=true"
@@ -83,7 +83,7 @@ On the `example_service`, we added a few labels:
 - `"traefik.http.services.example_service.loadbalancer.server.port=8000"` - marks this service's port as 8000  
 - ```"traefik.http.routers.example_service.rule=Host(`test.domain.localhost`)"``` - sets a rule to redirect requests to the host (in this case, `test.domain.localhost`) to this service
 
-And we added a new service called `reverse-proxy`, with the following commands:
+And we added a new service called `traefik`, with the following commands:
 - "--api.insecure=true" - allows access the Web UI 
 - "--providers.docker" - this signifies that we're using the Docker provider
 
@@ -98,8 +98,168 @@ volumes:
 ```
 
 In order for Traefik to autodiscover Docker services and route requests to them, it needs to hook into the Docker API. 
-Traefik requires access to the docker socket to get its dynamic configuration, and we let it do this by mounting the 
-Docker socket as a volume into the Traefik container. But this might not be the safest thing to do... in fact, there's a 
-ton of articles yelling at their readers to avoid this at all costs, because it can give attackers root access to not 
-just the container, but the host machine! That's... bad. Let's fix it.  
+Traefik requires access to the Docker socket to get its dynamic configuration, and we've enabled this by mounting the 
+Docker socket as a volume into the Traefik container. But this is in fact a security risk. There's a ton of articles 
+yelling at their readers to avoid this at all costs, because it can give attackers root access to not just the 
+container, but the host machine! That's... bad. Let's fix it.  
 
+We'll go ahead and add a new service, called `docker-proxy`. Any Traefik requests to the Docker socket will be proxied 
+through this service, which can filter out POST or other dangerous requests, and just limit it to GET-style requests.
+
+```yaml
+services:
+
+  example_service:
+    image: myservice:latest
+    command: ["start", "--port", "8000"]
+    env_file:
+      .env.sample
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.example_service.loadbalancer.server.port=8000"
+      - "traefik.http.routers.example_service.rule=Host(`test.domain.local`)"
+    networks:
+      - traefik-servicenet
+
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:edge
+    networks:
+      - docker-proxynet
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LOG_LEVEL: DEBUG
+      CONTAINERS: 1
+      SERVICES: 1
+      NODES: 1
+      NETWORKS: 1
+      TASKS: 1
+      VERSION: 1
+
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.endpoint=tcp://docker-proxy:2375"
+      - "--providers.docker.network=docker-proxynet"
+    depends_on:
+      - docker-proxy
+    read_only: true
+    ports:
+      - "80:80"
+      - "8080:8080"
+    networks:
+      - traefik-servicenet
+      - docker-proxynet
+
+networks:
+  traefik-servicenet:
+    name: traefik-servicenet
+  docker-proxynet:
+    internal: true
+    name: docker-proxynet
+```
+
+The image `tecnativa/docker-socket-proxy:edge` is built on top of HAProxy, which is proxying requests to the socket over 
+tcp. We're still mounting the `/var/run/docker.sock`, but in this case, it's safer because the `docker-proxynet` network 
+is internal, meaning the `docker-proxy` container won't be exposed to the public internet, whereas the `traefik` 
+container will be. Great! No more mounting sockets to public containers. 
+
+## Configuring Traefik For HTTPS
+Now that we have Traefik set up as a reverse-proxy, and we also set up a docker-proxy to safeguard the Docker socket, 
+it's time to talk about HTTPS. HTTPS is a protocol built on top of TCP. It works by encrypting the data of the 
+connection over TCP, allowing only the client to decrypt this data, and this is achieved through certificates. 
+Certificates are granted through a Certificate Authority (CA) which assert the authority of the certificate holder. 
+There is a chain-of-trust, such that when the client receives the certificate from the HTTPS server, it will validate 
+the certificate by following its issuers' certificates up the chain until the last link. If that link is valid, the 
+whole chain is trustworthy, and the connection is good to proceed!
+
+Traefik is nice, because it actually automatically renews its own certificates from Let's Encrypt, saving us, the users, 
+time from doing this all manually. It's as simpe as adding a few extra configs to Traefik and our service:
+
+```yaml
+services: 
+  example_service:
+    image: myservice:latest
+    command: ["start", "--port", "8000"]
+    env_file:
+      .env.sample
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.example_service.loadbalancer.server.port=8000"
+      - "traefik.http.routers.example_service.rule=Host(`test.domain.local`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.enable=true"
+    networks:
+      - traefik-servicenet
+        
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:edge
+    networks:
+      - docker-proxynet
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LOG_LEVEL: DEBUG
+      CONTAINERS: 1
+      SERVICES: 1
+      NODES: 1
+      NETWORKS: 1
+      TASKS: 1
+      VERSION: 1
+
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.endpoint=tcp://docker-proxy:2375"
+      - "--providers.docker.network=docker-proxynet"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=ytimen@yuvaltimen.xyz"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    depends_on:
+      - docker-proxy
+    read_only: true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - letsencrypt:/letsencrypt
+    networks:
+      - traefik-servicenet
+      - docker-proxynet
+
+volumes:
+  letsencrypt:
+
+networks:
+  traefik-servicenet:
+    name: traefik-servicenet
+  docker-proxynet:
+    name: docker-proxynet
+    internal: true
+```
+
+With that, our configs should be done! We want to just verify that everything works by checking the following few items: 
+- Requests to https://test.domain.local work
+- Requests to test.domain.local (without specifying protocol, will default to http) redirect to https
+- The dashboard is still active at test.domain.local:8080
+
+And there we have it! A fully functioning HTTPS service, behind a reverse-proxy, accessing the Docker API securely, on 
+a remote host. I think we've earned a large piece of tiramisu, don't you think?
+
+## References
+- Traefik's [documentation](https://doc.traefik.io/traefik/) 
+- Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on setting up a production-ready VPS
+- Wollomatic's [repo](https://github.com/wollomatic/traefik-hardened/tree/master) describing securely accessing Docker sockets
+- Chris Wiegman's [blog post](https://chriswiegman.com/2019/10/serving-your-docker-apps-with-https-and-traefik-2/) describing setting up Traefik and Docker with HTTPS
