@@ -185,7 +185,8 @@ really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`a
 
 This is all nice and good, but when eventually using Docker, it's important to note that there's a problem with using 
 Docker with `ufw`. Essentially, exposing Docker ports will actually override `ufw`'s configs, so we need to be careful 
-not to run Docker files with exposed ports that differ from the allowed ports.
+not to run Docker files with exposed ports that differ from the allowed ports. We will address this issue in the next 
+post. 
 
 ### 3. Removing Unnecessary Software
 There are many packages that come pre-installed with Ubuntu, and many of them I will never need on this machine. 
@@ -288,7 +289,8 @@ background). And thar she blows!
 
 ## Conclusion & Next Steps
 This guide covered provisioning a server, configuring some basic security measures, installing Docker, and running 
-an image pulled from a registry. Next time, we'll cover how to configure HTTPS to access our program securely.
+an image pulled from a registry. Next time, we'll cover 
+[how to configure HTTPS]({% link _posts/2024-10-1-configuring-https-on-ubuntu.md %}) to access our program securely.
 
 ## References
 - Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on setting up a production-ready VPS
