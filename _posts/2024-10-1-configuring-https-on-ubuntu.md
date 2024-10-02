@@ -84,8 +84,8 @@ On the `example_service`, we added a few labels:
 - ```"traefik.http.routers.example_service.rule=Host(`test.domain.localhost`)"``` - sets a rule to redirect requests to the host (in this case, `test.domain.localhost`) to this service
 
 And we added a new service called `traefik`, with the following commands:
-- "--api.insecure=true" - allows access the Web UI 
-- "--providers.docker" - this signifies that we're using the Docker provider
+- `"--api.insecure=true"` - allows access the Web UI 
+- `"--providers.docker"` - this signifies that we're using the Docker provider
 
 Now that we have this config set, let's see that commands are proxied correctly. We'll run `docker compose up` and then 
 try to hit our API. Hitting `test.domain.localhost` should show us the response!
@@ -177,7 +177,7 @@ the certificate by following its issuers' certificates up the chain until the la
 whole chain is trustworthy, and the connection is good to proceed!
 
 Traefik is nice, because it actually automatically renews its own certificates from Let's Encrypt, saving us, the users, 
-time from doing this all manually. It's as simpe as adding a few extra configs to Traefik and our service:
+time from doing this all manually. It's as simple as adding a few extra configs to Traefik and our service:
 
 ```yaml
 services: 
