@@ -290,7 +290,7 @@ background). And thar she blows!
 ## Conclusion & Next Steps
 This guide covered provisioning a server, configuring some basic security measures, installing Docker, and running 
 an image pulled from a registry. Next time, we'll cover 
-[how to configure HTTPS]({% link _posts/2024-10-1-configuring-https-on-ubuntu.md %}) to access our program securely.
+[how to configure HTTPS]({{ site.baseurl }}{% link _posts/2024-10-1-configuring-https-on-ubuntu.md %}) to access our program securely.
 
 ## References
 - Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on setting up a production-ready VPS
