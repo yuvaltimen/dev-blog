@@ -4,7 +4,7 @@ title:  "Configuring HTTPS on Linux for Production"
 date:   2024-10-1 10:15:01 -0400
 ---
 
-_This is Part 2 of [Securing a Linux Server for Production]({% link _posts/2024-09-30-securing-ubuntu-server.md %})._
+_This is Part 2 of [Securing a Linux Server for Production]({{ site.baseurl }}{% link _posts/2024-09-30-securing-ubuntu-server.md %})._
 
 In the last post, we looked at how to secure a Linux server for production by taking some common-sense measures against 
 common vulnerabilities. In this post, I'm going to move forward with setting up HTTPS so that the client communication 
