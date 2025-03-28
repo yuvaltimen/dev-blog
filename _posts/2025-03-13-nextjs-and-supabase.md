@@ -35,7 +35,7 @@ So how does it really work?
 
 When the user types in a website URL, DNS will resolve the IP address for the URL and issue a request for the content at that address. The home page for the website in question might be some HTML page with the logo, a quick description, and links to other pages of the website. These would all be __static__ assets, meaning they don't change. They're not dynamic. How often does the page logo or the link to the "about" page really change? Not very often. So, static assets are really easy to generate once, cache, and spread them around the world in CDNs for quicker distribution.
 
-However it's not 1999 anymore - we all know that the internet contains much more than just static assets. How do we deal with __dynamic__ content? Dynamic content means content that depends on certain parameters - maybe the user can only see their own profile data, maybe the data depends on the time of day, or maybe the page itself is dynamically rendered through search parameters, so some specific subset of a big data list is expected. Since we can't know this stuff in advanced, the client needs to request these things dynamically, then serve it to the user. 
+However it's not 1999 anymore - we all know that the internet contains much more than just static assets. How do we deal with __dynamic__ content? Dynamic content means content that depends on certain parameters - maybe the user can only see their own profile data, maybe the data depends on the time of day, or maybe the page itself is dynamically rendered through search parameters, so some specific subset of a big data list is expected. Since we can't know this stuff in advance, the client needs to request these things dynamically, then serve it to the user. 
 
 This should be straightforward - just request whatever data you want! Problem solved, right?
 
@@ -47,7 +47,7 @@ The server knows that the client is requesting a certain page, based on paramete
 
 The idea of letting the client do the work is called Client-Side Rendering (CSR), and if we move that work to the server, it's called Server-Side Rendering (SSR). Both of these methods have their pros and cons, with a fundamental tradeoff between the two: if the HTML is rendered on the server, the client receives fully rendered HTML from the server and the experience is much smoother. But once the client receives the rendered HTML, it would want to interact with it, meaning that we need to have some Javascript in there somewhere. To solve this, we could have the JS "hydrate" the client.
 
-Hydration is actually a really illustrative term here: imagine the server gives the client a dehydrated sponge. The client get's a whole sponge! But the sponge isn't really useable right away, so the client needs to "hydrate" it with water to get it to its correct state. In this case, the dried sponge is the fully-rendered HTML page, and the water that hydrates the sponge is Javascript, which receives the rendered HTML and adds event listeners and other interactivity to it to make the client interactive.
+Hydration is actually a really illustrative term here: imagine the server gives the client a dehydrated sponge. The client gets a whole entire sponge! But the sponge isn't really useable right away, so the client needs to "hydrate" it with water to get it to its correct state. In this case, the dried sponge is the fully-rendered HTML page, and the water that hydrates the sponge is Javascript, which receives the rendered HTML and adds event listeners and other interactivity to it to make the client interactive.
 
 Hydration is a whole topic in itself, so let's just jump to how Next.js handles hydration for its components.
 
@@ -56,7 +56,7 @@ Hydration is a whole topic in itself, so let's just jump to how Next.js handles 
 Next.js gives developers the best of both worlds - fully rendered HTML served to the browser, with the ability to selectively hydrate interactive components.
 <!-- excerpt-end -->
 
-The key word here is "selective". Next.js has a neat concept of Server Components and Client Components, which allow developers to choose which parts of their application get rendered on the server, and which get rendered on the client. If you want to build up intuition for React Server Components from first principles, there's a good article<sup>2</sup> in the References section.
+The key word here is "selective". Next.js has a neat concept of Server Components and Client Components, which allow developers to choose which parts of their application get rendered on the server, and which get rendered on the client. If you want to build up intuition for React Server Components from first principles, there's a good article<sup>2</sup> in the References section at the bottom of this article.
 
 ### The Next.js Network Boundary
 
@@ -64,7 +64,7 @@ The key word here is "selective". Next.js has a neat concept of Server Component
 
 A Next.js app that is deployed non-statically will have a Next.js server, which is just a NodeJS server with some added cruft. The server has access to the database or the APIs or whatever else is needed for the application to serve data. In the above picture, the server exists behind the network boundary, which is a conceptual line separating the client from the server. This image, though very simple, is very important to keep in mind when developing with Next.js.
 
-When writing components or pages in Next.js, the default component will be a Server Component, meaning that the entire component will be pre-rendered on the server. This is very convenient, becuase it allows the developer to use server-side environment variables, APIs and caches to fetch data, and then render that data directly into HTML.
+When writing components or pages in Next.js, the default component will be a Server Component, meaning that the entire component will be pre-rendered on the server. This is very convenient, becuase it allows the developer to use server-side environment variables, APIs, and caches to fetch data, and then render that data directly into HTML.
 
 But what if you need some sort of client-side functionality, like running a callback on a button click? If you try to run the following code in Next.js, you'll receive a warning:
 
@@ -136,17 +136,17 @@ export default function HomePage() {
 }
 ```
 
-Awesome - now Next.js will serve the fully rendered HTML for the home page, except it will leave a placeholder for the `<PrintButton />` component. Then, when the client receives the payload from the server, it will know to inject the Client Component into the correct slot. (_This process is really cool and I encourage you all to learn more about it.<sup>3</sup>_)
+Awesome - now Next.js will serve the fully rendered HTML for the home page, except it will leave a placeholder for the `<PrintButton />` component. Then, when the client receives the payload from the server, it will know to inject the Client Component into the correct slot. It does this using the React Server Component (RSC) Payload. This process is really cool and I encourage you all to learn more about it.<sup>3</sup>.
 
 There's a bunch of nuance as to how best to structure applications and how to nest Client Components inside of Server Components. The main thing to know is that nesting Client Components inside of a Server component is usually what you'll want. In the outer Server Component, you fetch the data you want, and then render everything into the HTML in the `return` block. You can then embed Client Components and pass down the data as props. This is a secure and opaque way to feed data to the client without revealing the underlying API.
 
-However, if you embed a Server Component inside of a Client Component, then that's an anti-pattern. Any component that is imported into a Client Component will itself become a Client Component, so avoid this mistake. There is a package called `server-only` that allows you to annotate Server Components to throw errors if it's ever used in a Client Context.
+However, a common anti-pattern is to embed a Server Component inside of a Client Component. Any component that is imported into a Client Component will itself become a Client Component, so avoid this mistake. There is a package called `server-only` that allows you to annotate Server Components to throw errors if it's ever used in a Client Context.
 
 Although there's much more to be said on the Client/Server Network Boundary in Next.js, let's move on to Server Actions, which in my opinion, is the best thing about Next.js.
 
 ### Server Actions
 
-Next.js makes the Client and Server Components from React pretty easy to use and to reason about. But as a Backend developer, I'm also interested in creating, updating, and deleting data, rather than just reading it. 
+Next.js makes the Client and Server Components from React pretty easy to use and to reason about. This really helps us read and display data in the most efficient way possible. But as a Backend developer, I'm also interested in creating, updating, and deleting data, rather than just reading it. 
 
 Normally, if I wanted to accomplish something like updating a post, I'd create an POST API endpoint and call it from the client, then handle the data refetching on update. But Next.js has one cool new feature that can completely obscure the REST API from the user and make it almost trivial to implement data mutation: Server Actions!
 
@@ -203,15 +203,19 @@ So Server Actions are simple enough to use. But how do they really work?
 
 Okay, I'm going to level with you - Server Actions are really just HTTP requests in disguise, meaning their inputs should still be treated as insecure and validated properly. So assuming you've secured the Server Action properly, let's see which measures Next.js takes to enhance security on them. Let's walk through the lifecycle of a Server Action.
 
-Before deploying your Next.js app, you'll need to run `npm run build`, which will build and bundle the app to make it ready for production. One of the things it does is prune unused Server Actions! This is called Dead code elimination, and is used to prevent public access. All the Server Actions that are referenced by their ID somewhere in the code do get deployed, so part of the build process involves statically securing these Actions. 
+Before deploying your Next.js app, you'll need to run `npm run build`, which will build and bundle the app to make it ready for production. One of the things it does is prune unused Server Actions! This is called dead-code elimination, and is used to prevent public access. All the Server Actions that are referenced by their ID somewhere in the code do get deployed, so part of the build process involves statically securing these Actions. 
 
-Next.js claims that it "creates encrypted, non-deterministic IDs to allow the client to reference and call the Server Action. These IDs are periodically recalculated between builds for enhanced security... The IDs are created during compilation and are cached for a maximum of 14 days. They will be regenerated when a new build is initiated or when the build cache is invalidated. This security improvement reduces the risk in cases where an authentication layer is missing." Fascinating! 
+Next.js claims that it: 
 
-When a Server Action is imported into a Client Component, Next.js will wrap the Server Action with a special wrapper that allows for the request to be properly formatted.
+> "creates encrypted, non-deterministic IDs to allow the client to reference and call the Server Action. These IDs are periodically recalculated between builds for enhanced security... The IDs are created during compilation and are cached for a maximum of 14 days. They will be regenerated when a new build is initiated or when the build cache is invalidated. This security improvement reduces the risk in cases where an authentication layer is missing."
+
+Fascinating! 
+
+Another part of the build process is preparing Client Components for executing Server Actions. Next.js wants to ensure that only the Client Component is able to execute Server Actions, rather than allowing any client, such as Postman or a cURL command. When a Server Action is imported into a Client Component, Next.js will wrap the Server Action with a special wrapper that allows for the request to be properly formatted.
 
 When the Server Action is invoked from the Client (ie. from a form submission of a button click), Next.js serializes the function and its parameters. At this stage, Next.js will actually generate a random, temporary, internal endpoint on which to execute the Action. This endpoint is intended to be unpredictable and is not a public route (ie. not in `/api/*`).
 
-Next.js has mechanisms to check the origin, headers, and other aspects of the incoming request, to ensure that it came from the client.
+Next.js has mechanisms to check the origin, CSRF token, headers, and other aspects of the incoming request, to ensure that it came from the client.
 
 Finally, Next.js will receive the request, deserialize the function and its arguments, and invoke it like a normal server function. The runtime of the Server Action is inherited from the page or layout from which they're invoked.
 
