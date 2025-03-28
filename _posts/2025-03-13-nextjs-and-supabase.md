@@ -8,7 +8,7 @@ date:   2025-03-13 15:56:01 -0400
 
 I've recently started using Next.js for a project. I come from the world of Backend, so I've encountered a lot of new concepts and I figured I would document my thoughts and learnings here. So let's dive right in.
 
-### How The Heck Does Frontend Even Work?
+## How The Heck Does Frontend Even Work?
 
 As a Backend developer, I could talk all day about APIs, horizontal scaling, and database optimization. But when first started working on my latest full-stack project, I realized I was mystified about the workings of the Frontend: the browser, the event loop, async/await, and all the other good stuff that makes a website fun to use. 
 
@@ -51,6 +51,7 @@ Hydration is actually a really illustrative term here: imagine the server gives 
 
 Hydration is a whole topic in itself, so let's just jump to how Next.js handles hydration for its components.
 
+## The Next.js Framework
 <!-- excerpt-start -->
 Next.js gives developers the best of both worlds - fully rendered HTML served to the browser, with the ability to selectively hydrate interactive components.
 <!-- excerpt-end -->
@@ -145,6 +146,80 @@ Although there's much more to be said on the Client/Server Network Boundary in N
 
 ### Server Actions
 
+Next.js makes the Client and Server Components from React pretty easy to use and to reason about. But as a Backend developer, I'm also interested in creating, updating, and deleting data, rather than just reading it. 
+
+Normally, if I wanted to accomplish something like updating a post, I'd create an POST API endpoint and call it from the client, then handle the data refetching on update. But Next.js has one cool new feature that can completely obscure the REST API from the user and make it almost trivial to implement data mutation: Server Actions!
+
+A Server Action is just an async function that's executed on the server. Sounds simple, but the way Next.js handles them has a lot of nuance, so let's take a closer look at how they work.
+
+### How To Use Server Actions
+
+Let's define a file called `actions.ts` containing one simple Server Action that inserts a row into our database:
+
+```
+// /app/actions/actions.ts
+
+'use server';
+
+export function insertData(formData: FormData) {
+    const data = formData.get('data');
+    const db = createDbClient(...);
+    await db.insert(data);
+    revalidatePath('/posts')
+};
+```
+
+The function itself takes in a formData object, which acts just like a dictionary. As you can see, we insert the data and then call this `revalidatePath` function - this is the Server Action's way of busting the page's cache. Alternatively, we could `redirect` to a different page, return an object, or throw an error which would be handled by the nearest `error.js` file.
+
+The `'use server'` directive at the top of the file tells Next.js that all exports from the `/app/actions/actions.ts` file are Server Actions. This directive should not be confused with the default (ie. empty) Server Component directive; do NOT use `'use server'` on Server Components.
+
+Okay, so we created the `insertData` Server Action, which will run on the server when invoked, and it has access to all the server data, such as the `createDbClient` function in this example. For that reason, Next.js suggests adding validation for authorization on all your Server Actions, and to basically treat them as any other public endpoint. Good to know!
+
+We can now invoke this function from Server or Client Components. Let's create a button to call the function from the Client side:
+
+```
+'use client';
+
+import { insertData } from '/app/actions/actions.ts';
+
+export default function InsertButton() {
+    return (
+        <button onClick={() => insertData('Hello')}>
+        Insert 'Hello'
+        </button>
+    );
+}
+
+```
+
+Alternatively, we can call this action from a form using the `action` or `formAction` props. This will be left as an exercise to the reader. (Sorry, I read too many math textbooks in college.)
+
+So Server Actions are simple enough to use. But how do they really work?
+
+### What's Really Going On?
+
+<img src="{{ site.baseurl }}/assets/images/scooby-doo.jpg" height="400"/>{:style="display:block; margin-left:auto; margin-right:auto"}
+
+
+Okay, I'm going to level with you - Server Actions are really just HTTP requests in disguise, meaning their inputs should still be treated as insecure and validated properly. So assuming you've secured the Server Action properly, let's see which measures Next.js takes to enhance security on them. Let's walk through the lifecycle of a Server Action.
+
+Before deploying your Next.js app, you'll need to run `npm run build`, which will build and bundle the app to make it ready for production. One of the things it does is prune unused Server Actions! This is called Dead code elimination, and is used to prevent public access. All the Server Actions that are referenced by their ID somewhere in the code do get deployed, so part of the build process involves statically securing these Actions. 
+
+Next.js claims that it "creates encrypted, non-deterministic IDs to allow the client to reference and call the Server Action. These IDs are periodically recalculated between builds for enhanced security... The IDs are created during compilation and are cached for a maximum of 14 days. They will be regenerated when a new build is initiated or when the build cache is invalidated. This security improvement reduces the risk in cases where an authentication layer is missing." Fascinating! 
+
+When a Server Action is imported into a Client Component, Next.js will wrap the Server Action with a special wrapper that allows for the request to be properly formatted.
+
+When the Server Action is invoked from the Client (ie. from a form submission of a button click), Next.js serializes the function and its parameters. At this stage, Next.js will actually generate a random, temporary, internal endpoint on which to execute the Action. This endpoint is intended to be unpredictable and is not a public route (ie. not in `/api/*`).
+
+Next.js has mechanisms to check the origin, headers, and other aspects of the incoming request, to ensure that it came from the client.
+
+Finally, Next.js will receive the request, deserialize the function and its arguments, and invoke it like a normal server function. The runtime of the Server Action is inherited from the page or layout from which they're invoked.
+
+## Conclusion
+
+Next.js is a powerful Frontend framework that blends React Server-Side and Client-Side Rendering into a hybrid pattern that gives developers the best of both worlds. It uses React Server Actions to simplify data mutation, removing the need for full-sized API endpoints. These Server Actions are secured through a variety of clever means, preventing repeatable attacks against the internal data processing part of the server.
+
+We barely scratched the surface in this blog post, so I'd encourage everyone to try it out themselves. See you all next time!
 
 
 ### References: 
