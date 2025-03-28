@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "The Next.js Framework"
-date:   2025-03-13 15:56:01 -0400
+date:   2025-03-28 11:30:01 -0400
 ---
 
 <img src="{{ site.baseurl }}/assets/images/nextjs.png" height="150"/>{:style="display:block; margin-left:auto; margin-right:auto"}
