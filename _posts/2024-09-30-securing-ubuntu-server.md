@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Securing a Linux Server for Production"
+tags: tech
 date:   2024-09-30 13:34:01 -0400
 ---
 
