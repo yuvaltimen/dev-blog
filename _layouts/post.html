@@ -3,5 +3,8 @@ layout: default
 ---
 <h1>{{ page.title }}</h1>
 <p>{{ page.date | date_to_string: "ordinal", "US" }}</p>
+{% for tag in page.tags %}
+<p style="background-color: #d6d8de; color: #4b5563; border-radius: 9999px; padding: 4px 12px; font-size: 0.875rem; font-weight: 500; display: inline-block;">{{ tag }}</p>
+{% endfor %}
 
 {{ content }}

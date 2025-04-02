@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "The Next.js Framework"
+tags: tech
 date:   2025-03-28 11:30:01 -0400
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Configuring HTTPS on Linux for Production"
+tags: tech
 date:   2024-10-1 10:15:01 -0400
 ---
 
