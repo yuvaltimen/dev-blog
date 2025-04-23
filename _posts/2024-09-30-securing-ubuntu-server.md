@@ -20,6 +20,74 @@ I created a "Nanode" instance with 1 GB RAM, 1 CPU Core, and 25 GB of storage. T
 this process in the future using a bigger image. But for now, I'll take it. 
 
 
+## First Things First
+First things first: update the server! This should be done on a regular basis. Since we're on an Ubuntu distribution, 
+we'll run:
+
+```bash
+>> apt update && apt upgrade
+```
+
+After this runs, the system may recommend to reboot or restart certain services, so go ahead and follow the prompts 
+or read through the suggestions and do what you feel is best. 
+
+Next, since I'm in the EST timezone, I'll set the timezone, since it uses UTC by default:
+
+```bash
+>> timedatectl set-timezone 'America/New_York'
+# Check the time to make sure it aligns with your local timezone
+>> date
+```
+
+We'll go ahead and set the hostname for our machine:
+```bash
+>> hostnamectl set-hostname production
+```
+
+Now, after logging out and then ssh'ing back as root, we should see the prompt like this:
+`root@production:~#`, instead of `root@localhost:~#`.
+
+
+## Setting Up A Domain Name
+I bought a domain name from [Namecheap.com](https://www.namecheap.com/).
+Once I confirmed my information from their email, I was able to manage the DNS settings for the domain.
+I used Namecheap's BasicDNS since it was the cheapest and most basic option, and then proceeded to their
+Advanced DNS tab to configure the settings.
+
+Under "Host Records", I added a new `A Record` with the "Host" set to `@` (denoting that no prefix should be used),
+and I set the "Value" of the record to be equal to the Public IP Address of my VPS. I left the TTL on "Automatic",
+which typically defaults to 300 seconds (5 min). This TTL value dictates how long the DNS record will be cached
+in the DNS servers for, meaning that if I add or change a DNS record, it may take up to 5 minutes to go into effect.
+
+I can test that this change took effect by seeing if my new hostname is resolved. In this case, the domain name that I
+bought was `yuvaltimen.xyz`. Let's see if it got updated to point to my VPS's IP Address:
+
+```bash
+>> ping yuvaltimen.xyz 
+
+PING yuvaltimen.xyz (45.33.90.24): 56 data bytes
+64 bytes from 45.33.90.24: icmp_seq=0 ttl=53 time=14.245 ms
+64 bytes from 45.33.90.24: icmp_seq=1 ttl=53 time=21.427 ms
+...
+```
+
+It worked! I can see my VPS's IP Address `45.33.90.24` returned from the `ping`, meaning that the Domain Name
+`yuvaltimen.xyz` was resolved to the IP Address `45.33.90.24`.
+
+We'll need to do the same thing for the IPv6 address, except using an AAAA record instead of an A record.
+
+## Updating The System's `hosts` File
+
+The `hosts` file is used for host resolution, and is referenced before using DNS. This file contains a list of static 
+associations between IP addresses and hostnames/domains which the system prioritizes before DNS.
+
+Edit the `/etc/hosts` file:
+```
+127.0.0.1 localhost
+45.33.90.24 yuvaltimen.xyz production
+2600:3c03::f03c:95ff:fe43:779a yuvaltimen.xyz production
+```
+
 ## Setting Up Users
 After waiting a while for the server to be provisioned, I can see that my new server's public IP address is `45.33.90.24`. 
 I'm going to go ahead and SSH into it as the root user:
@@ -67,32 +135,6 @@ We have 2 options for doing this:
 
 It's been confirmed - the new user is all set!
 
-## Setting Up A Domain Name
-I bought a domain name from [Namecheap.com](https://www.namecheap.com/).
-Once I confirmed my information from their email, I was able to manage the DNS settings for the domain. 
-I used Namecheap's BasicDNS since it was the cheapest and most basic option, and then proceeded to their 
-Advanced DNS tab to configure the settings. 
-
-Under "Host Records", I added a new `A Record` with the "Host" set to `@` (denoting that no prefix should be used),
-and I set the "Value" of the record to be equal to the Public IP Address of my VPS. I left the TTL on "Automatic", 
-which typically defaults to 300 seconds (5 min). This TTL value dictates how long the DNS record will be cached 
-in the DNS servers for, meaning that if I add or change a DNS record, it may take up to 5 minutes to go into effect. 
-
-I can test that this change took effect by seeing if my new hostname is resolved. In this case, the domain name that I 
-bought was `yuvaltimen.xyz`. Let's see if it got updated to point to my VPS's IP Address:
-
-```bash
->> ping yuvaltimen.xyz 
-
-PING yuvaltimen.xyz (45.33.90.24): 56 data bytes
-64 bytes from 45.33.90.24: icmp_seq=0 ttl=53 time=14.245 ms
-64 bytes from 45.33.90.24: icmp_seq=1 ttl=53 time=21.427 ms
-...
-```
-
-It worked! I can see my VPS's IP Address `45.33.90.24` returned from the `ping`, meaning that the Domain Name 
-`yuvaltimen.xyz` was resolved to the IP Address `45.33.90.24`.
-
 
 ## Hardening The Server
 Now that I have the server running with a Domain Name and a non-root user, I can go ahead configuring security 
@@ -109,12 +151,18 @@ knuckleheads that uses a password like "password", which most hackers will try t
 brute-force anything else. Meanwhile, SSH keys are much harder to crack, and while they do have their weaknesses, they 
 are considered more secure than password-based logins. 
 
-Since I already have SSH keys on my computer, I'll be using one of those. If you don't have keys, or if future 
-me decides I need to access this server from a different machine, I'd have to generate a new key-pair and copy the public 
+Let's quickly give the server a place to store SSH information. Create a directory on the server:
+```bash
+>> mkdir -p ~/.ssh && sudo chmod -R 700 ~/.ssh/
+```
+
+Now I'll switch to a terminal on my local computer. Since I already have SSH keys on my computer, 
+I'll be using one of those. If you don't have keys, or if future me decides I need to access this 
+server from a different machine, I'd have to generate a new key-pair and copy the public 
 key to the server. This can be done through the `ssh-keygen` command, for example:
 
 ```bash
->>  ssh-keygen -t ed25519 -a 32 -f ~/.ssh/id_ed25519
+>>  ssh-keygen -t ed25519 -a 32 -f ~/.ssh/id_ed25519 -R 45.33.90.24
 ```
 
 This would create a key-pair, one private and one public key. The private key created at `~/.ssh/id_ed25519` is the 
@@ -126,7 +174,13 @@ private you secret that you should NEVER SHARE WITH ANYONE OR COPY ANYWHERE, and
 ```
 
 This will SSH into the remote machine at `yuvaltimen.xyz` using the user `ytimen` and add the public key corresponding 
-to `~/.ssh/id_ed25519` (in this case, `~/.ssh/authorized_keys.pub`) to the remote user's `~/.ssh/authorized_keys`. 
+to `~/.ssh/id_ed25519` (in this case, `~/.ssh/authorized_keys.pub`) to the remote user's `~/.ssh/authorized_keys`.
+
+And to add a tiny bit of extra security, we can lock down the `~/.ssh/authorized_keys` file itself:
+
+```bash
+>> sudo chmod -R 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys
+```
 
 Now that I've added my public key, let's go ahead and disable password-based auth and non-root logins. I'll open up my 
 sshd_config file:
@@ -294,6 +348,8 @@ an image pulled from a registry. Next time, we'll cover
 [how to configure HTTPS]({{ site.baseurl }}{% link _posts/2024-10-1-configuring-https-on-ubuntu.md %}) to access our program securely.
 
 ## References
+- Akamai's [Blog Post](https://techdocs.akamai.com/cloud-computing/docs/set-up-and-secure-a-compute-instance) about securing a Linode server
 - Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on setting up a production-ready VPS
 - Tony Teaches Tech's [guide](https://tonyteaches.tech/secure-ubuntu-server/) on securing an Ubuntu server
 - Docker's [guide](https://docs.docker.com/engine/install/ubuntu/) on setting up Docker Engine with Ubuntu
+
