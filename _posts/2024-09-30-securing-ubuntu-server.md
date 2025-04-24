@@ -285,14 +285,30 @@ Next we'll configure Fail2Ban. We'll use the default `fail2ban.conf` file, and w
 override file called `fail2ban.local`, which keeps things clean and organized. The same goes for `jail.conf` which is the 
 configuration file for which services fail2ban acts on. 
 
-First let's copy the default file to our local file:
+We'll copy the default files to local file versions:
 ```bash
 >> cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
 >> cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 ```
 
+From here we can edit either of these local files. All of the configurations and their defaults are explained 
+and we can customize things like the bantim, findtime, the formula for banning, and more. Additionally, we can create 
+"jails", which are ban lists for each service fail2ban is monitoring for us. We can see that we have the sshd jail set up 
+by default by running: 
 
+```bash
+>> sudo fail2ban-client status
 
+Status
+|- Number of jail:	1
+`- Jail list:	sshd
+```
+We can add additional jails by setting them up in the `/etc/fail2ban/jail.local` file. We'll get to this in the next post.
+After making any changes, we can reload the configurations for them to take effect by running 
+`sudo fail2ban-client reload`. If we wait some time and then run `sudo fail2ban-client banned` we can see an overview of 
+what IPs have been banned, and in which jails. Finally, to see the logs, we can check `/var/log/fail2ban.log`.
+
+That's it for securing the server! Next lets actually run some software.
 
 ## Installing Docker 
 Since I'm using Ubuntu, I'll follow the instructions on the 
