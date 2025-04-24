@@ -191,9 +191,11 @@ sshd_config file:
 
 and set the following options, making sure to save the file after editing:
 
-- `PasswordAuthentication no`
-- `PermitRootLogin no`
-- `UsePAM no`
+```
+PasswordAuthentication no
+PermitRootLogin no
+UsePAM no
+```
 
 Now, I'll apply these changes by restarting the ssh service:
 
@@ -211,7 +213,26 @@ root@45.33.90.24: Permission denied (publickey).
 
 Nice! Permission denied, just like we hoped for.
 
-### 2. Setting Up A Firewall
+### 2. Removing Unnecessary Software
+There are many packages that come pre-installed with Ubuntu, and many of them I will never need on this machine.
+I'll go ahead and remove as many of these as I can to reduce the attack surface of my server.
+
+I can see which services are in use by running `sudo ss -atpu`. We'll go ahead and delete any packages we don't want 
+with the following command:
+```bash
+>>  sudo apt-get purge --auto-remove <packages> 
+```
+
+where `<packages>` is a space-separated list of apt package names. The ones I removed were:
+- `telnetd`
+- `ftp`
+- `vsftpd`
+- `samba`
+- `nfs-kernel-server`
+- `nfs-common`
+
+
+### 3. Setting Up A Firewall
 Controlling incoming and outgoing network requests is an essential part of securing the server. Luckily, Ubuntu has a 
 really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`all. This is the configuration I used:
 
@@ -225,7 +246,8 @@ really easy solution pre-installed. Enter, `ufw`: The `U`ncomplicated `F`ire`W`a
 # Enable inbound requests to OpenSSH server, to allow SSH'ing into the VPS 
 # Also enable inbound requests to the web server ports 80 and 8080
 >> sudo ufw allow OpenSSH
->> sudo ufw allow 80
+>> sudo ufw allow http
+>> sudo ufw allow https
 >> sudo ufw allow 8080
 
 # Check all the firewall rules applied thus far
@@ -243,21 +265,34 @@ Docker with `ufw`. Essentially, exposing Docker ports will actually override `uf
 not to run Docker files with exposed ports that differ from the allowed ports. We will address this issue in the next 
 post. 
 
-### 3. Removing Unnecessary Software
-There are many packages that come pre-installed with Ubuntu, and many of them I will never need on this machine. 
-I'll go ahead and remove as many of these as I can to reduce the attack surface of my server, using the command:
+### 4. Installing Fail2Ban
 
+Despite all the steps above to secure the server, some people will still try to break in and use our machine to mine crypto. 
+I've had this happen a few times, and it's very time-consuming to constantly monitor logs and ban IP addresses that
+are clearly bad actors. So lets use software to do that for us! Fail2Ban is an app that monitors system logs for things that 
+look like automated attacks, and bans their IP address by updating the iptable. We can set the ttl on the ban for their 
+IP. 
+
+Let's first install it, along with Sendmail so we can get updates on what Fail2Ban is doing for us:
 ```bash
->>  sudo apt-get purge --auto-remove <packages> 
+>> sudo apt install fail2ban sendmail
+# Enable SSH access on UFW
+>> sudo ufw allow ssh
+>> sudo ufw enable
 ```
 
-where `<packages>` is a space-separated list of apt package names. The ones I removed were:
-- `telnetd`
-- `ftp`
-- `vsftpd` 
-- `samba`
-- `nfs-kernel-server`
-- `nfs-common`
+Next we'll configure Fail2Ban. We'll use the default `fail2ban.conf` file, and we can override these updates in a separate 
+override file called `fail2ban.local`, which keeps things clean and organized. The same goes for `jail.conf` which is the 
+configuration file for which services fail2ban acts on. 
+
+First let's copy the default file to our local file:
+```bash
+>> cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
+>> cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+```
+
+
+
 
 ## Installing Docker 
 Since I'm using Ubuntu, I'll follow the instructions on the 
@@ -348,7 +383,7 @@ an image pulled from a registry. Next time, we'll cover
 [how to configure HTTPS]({{ site.baseurl }}{% link _posts/2024-10-1-configuring-https-on-ubuntu.md %}) to access our program securely.
 
 ## References
-- Akamai's [Blog Post](https://techdocs.akamai.com/cloud-computing/docs/set-up-and-secure-a-compute-instance) about securing a Linode server
+- Akamai's blog posts on [securing a Linode server](https://techdocs.akamai.com/cloud-computing/docs/set-up-and-secure-a-compute-instance), then [removing unused services](https://www.linode.com/docs/guides/remove-unused-network-facing-services/), and finally [configuring UFW](https://www.linode.com/docs/guides/configure-firewall-with-ufw/) 
 - Dreams of Code's [YouTube video](https://www.youtube.com/watch?v=F-9KWQByeU0&t=376s) on setting up a production-ready VPS
 - Tony Teaches Tech's [guide](https://tonyteaches.tech/secure-ubuntu-server/) on securing an Ubuntu server
 - Docker's [guide](https://docs.docker.com/engine/install/ubuntu/) on setting up Docker Engine with Ubuntu
