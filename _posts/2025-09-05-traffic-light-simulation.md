@@ -1,10 +1,11 @@
 ---
-layout: project
-title: Why the chicken crossed the road 
-subtitle: A response to Rex Evans
-github_link: https://github.com/yuvaltimen/traffic_light_simulator
-#media: /assets/images/traffic_light_map.png
+layout: post
+title: "Why The Chicken Crossed The Road: A Response To Rex Evans" 
+tags: random
+date: 2025-09-04 13:34:01 -0400
 ---
+
+<img src="{{ site.baseurl }}/assets/images/crosswalk_image.jpg"/>{:style="display:block; margin-left:auto; margin-right:auto"}
 
 Re. [Rex's Substack: Why did the chicken cross the road?](https://rexevans.substack.com/p/why-did-the-chicken-cross-the-road)
 
@@ -31,10 +32,12 @@ So maybe we should simplify the scope a bit and imagine the ideal city. Let's ca
 staying in the theme of your Substack post.
 
 
-
 ## Chickenville is the ideal city
 
-You'll be thrilled to hear that Chickenville is a mathematically ideal city. All of its streets are the same height, 
+<!-- excerpt-start -->
+You'll be thrilled to hear that Chickenville is a mathematically ideal city.
+<!-- excerpt-end -->
+All of its streets are the same height, 
 all of its avenues the same width, and all the blocks are evenly spaced. The city is rectangular, where the north-west corner 
 marks the intersection of 1st street and A Avenue. The streets continue southward, incrementing 1, 2, 3, 4 til infinity. 
 And the avenues continue eastward starting with A, B, C,... and after Avenue Z, we have Avenue AA, AB, AC... and so on until infinity.
@@ -82,11 +85,11 @@ or whether we zigzag, or whatever.
 
 This, I argue, is the basis for our simulation: cost. We're essentially just adding line segment distances here.
 
-How do we properly model the traffic light? 
+How do we properly model the traffic light? With nothing less than some good old statistics!
 
 We firstly assume that all street traffic lights have identical light cycle times, and likewise for all avenue traffic lights.
 They may or may not be aligned with each other, but 1st avenue's red won't be shorter than Madison's. We'll assume for now that the 
-"initial green" on each traffic light is unknown, and that each cycle is independent. We can model each crosswalk being associated with 
+"initial green" on each traffic light is unknown, and that each cycle is independent. We can model each crosswalk as being associated with 
 a random variable, which is the time in seconds the walker must wait at the red before the green shows. We'll assume that once the green 
 shows, the walker can successfully cross the crosswalk, even if the light cycle is shorter than the time it takes for the walker to clear 
 the distance. (Yeesh, have some mercy cars.)
@@ -97,4 +100,13 @@ Upfront, the probability of arriving at the light when it's green is 10 / (10 + 
 However, the other 60% of the time, we don't necessarily incur a cost of 15s of waiting, but rather we might have to wait 
 only 4s or whatever. So we can treat this like a uniform distribution between 0-15, where in the mean, you'll have to wait 15/2 = 7.5s.
 So we can associate a cost with every given traffic light as being the combination of either hitting a green, or given a red, uniformly sampling it.
+
+It would be the weighted probability of both events: so 0.4 * 0s + 0.6 * 7.5s = 4.5s.
+This is in the limit case, but if you have knowledge of if the upcoming traffic light next green time, it would not be the same cost. 
+
+That was a bit of theory. Let's do the actual simulation.
+
+## Let's take a walk around Chickenville
+
+We're going
 
