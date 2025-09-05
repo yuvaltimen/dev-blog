@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Why The Chicken Crossed The Road: A Response To Rex Evans" 
-tags: random
+tags: statistics
 date: 2025-09-04 13:34:01 -0400
 ---
 
@@ -13,7 +13,7 @@ So I've been thinking about this a lot.
 
 > In Option 2, you maintain the option to cross the avenue at any light before 45th. So, if you get stopped at a light as you are walking down towards 45th, you can always cross the avenue then and don’t have to wait.
 
-In this case, you're saying it would be better to stay on your side, 
+The argument you're making here is that it would be better to stay on your side, 
 because you can cross the street now and reserve the option to cross 
 the avenue when the street crossing is no longer available. You noted 
 the assumption that "crossing avenues takes longer than crossing numbered streets",
@@ -69,7 +69,7 @@ To go from the `southwest corner of 86th st and 1st ave` to the `northeast corne
 - 2 avenue blocks
 - 1 avenue crosswalk
 
-Without traffic lights, given the params (in meters and seconds):
+Without traffic lights, given the following parameters (in meters and seconds):
 - street block length = 15m
 - street crosswalk length = 3m
 - avenue block length = 30m
@@ -85,28 +85,54 @@ or whether we zigzag, or whatever.
 
 This, I argue, is the basis for our simulation: cost. We're essentially just adding line segment distances here.
 
-How do we properly model the traffic light? With nothing less than some good old statistics!
+How do we properly model the traffic light? With nothing less than some good ol' statistics!
+
+## Some good ol' statistics!
 
 We firstly assume that all street traffic lights have identical light cycle times, and likewise for all avenue traffic lights.
 They may or may not be aligned with each other, but 1st avenue's red won't be shorter than Madison's. We'll assume for now that the 
-"initial green" on each traffic light is unknown, and that each cycle is independent. We can model each crosswalk as being associated with 
-a random variable, which is the time in seconds the walker must wait at the red before the green shows. We'll assume that once the green 
-shows, the walker can successfully cross the crosswalk, even if the light cycle is shorter than the time it takes for the walker to clear 
-the distance. (Yeesh, have some mercy cars.)
+"initial green" on each traffic light is unknown, and that each cycle is independent. 
 
-Let's take an example light cycle: (green = 10s, red = 15s)
+We can model each crosswalk as being associated with a random variable, which is the time in seconds the walker 
+must wait at the red before the green shows. We'll assume that once the green shows, the walker can successfully cross 
+the crosswalk, even if the light cycle is shorter than the time it takes for the walker to clear the distance. 
+(Yeesh, have some mercy cars.)
 
-Upfront, the probability of arriving at the light when it's green is 10 / (10 + 15) = 0.4 or 40%.
-However, the other 60% of the time, we don't necessarily incur a cost of 15s of waiting, but rather we might have to wait 
-only 4s or whatever. So we can treat this like a uniform distribution between 0-15, where in the mean, you'll have to wait 15/2 = 7.5s.
-So we can associate a cost with every given traffic light as being the combination of either hitting a green, or given a red, uniformly sampling it.
+Let's take an example light cycle to cross an avenue: (green = 10s, red = 15s).
 
-It would be the weighted probability of both events: so 0.4 * 0s + 0.6 * 7.5s = 4.5s.
-This is in the limit case, but if you have knowledge of if the upcoming traffic light next green time, it would not be the same cost. 
+This means that, to cross the street perpendicular to the avenue, the light cycle would be inverted: (green = 15s, red = 10s).
 
-That was a bit of theory. Let's do the actual simulation.
+Let's analyze the time it takes to cros the avenue. Upfront, the probability of arriving at the light when it's 
+green is 10 / (10 + 15) = 0.4 or 40%. However, the other 60% of the time, we don't necessarily incur the maximum cost
+of 15s of waiting, but rather we might have to wait 10s, or only 4s, depending when in the cycle we show up. So we can
+treat this like a uniform distribution between 0-15, where in the mean, you'll have to wait 15/2 = 7.5s. This is the 
+expected wait time given we show up to a red light. Now, to integrate both of these facts into a single cost, we can 
+combine the cost of either hitting a green, or given a red, the cost of uniformly sampling it.
+
+It would be the weighted probability of both events: so 0.4 * 0s + 0.6 * 7.5s = **4.5s**.
+
+It would be similar, but opposite for analyzing the cost of crossing the street. The probability of hitting the 
+green is 15 / (10 + 15) = 0.6 or 60%. The probability of hitting the red is 1 - P(green) = 1 - 0.6 = 0.4 = 40%. 
+The expected wait time given we show up at a red light is 10 / 2 = 5s. 
+
+So taking the weighted probabilities, we get: 0.6 * 0s + 0.4 * 5s = **2s**.
+
+This is in the limit case, but if you have knowledge of if the upcoming traffic light next green time, it would not be 
+the same cost. Now, using just this naive "expected value" of the wait time, let's calculate what path we should take.
+
+- 12 street blocks * 15m street block length
+- (11 street crosswalks * 3m street crosswalk length) + (11 street crosswalks * 2s expected wait time per street) 
+- 2 avenue blocks * 30m avenue block length
+- (1 avenue crosswalk * 5m avenue crosswalk length) + (1 avenue crosswalk * 4.5s expected wait time per avenue)
+
+(12 * 15) + (11 * 3) + (11 * 2) + (2 * 30) + (1 * 5) + (1 * 4.5) = **304.5s**!
+
+Wait... this number is the same regardless of the path! Dammit. The only way we can really take into account the best path 
+is to simulate the traffic lights. Instead of taking the expected value, we should actually uniformly sample the red light 
+waiting time, and run this simulation enough times to get a significant result. 
+
+Enough theory. Let's do the simulation.
 
 ## Let's take a walk around Chickenville
 
-We're going
 
