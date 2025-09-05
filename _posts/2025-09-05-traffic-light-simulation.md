@@ -127,7 +127,7 @@ the same cost. Now, using just this naive "expected value" of the wait time, let
 
 (12 * 15) + (11 * 3) + (11 * 2) + (2 * 30) + (1 * 5) + (1 * 4.5) = **304.5s**!
 
-Wait... this number is the same regardless of the path! Dammit. The only way we can really take into account the best path 
+I'm sure you noticed that this number is the same regardless of the path! The only way we can really take into account the best path 
 is to simulate the traffic lights. Instead of taking the expected value, we should actually uniformly sample the red light 
 waiting time, and run this simulation enough times to get a significant result. 
 
