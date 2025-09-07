@@ -40,8 +40,8 @@ staying in the theme of your Substack post.
 You'll be thrilled to hear that Chickenville is a mathematically ideal city.
 <!-- excerpt-end -->
 All of its streets are the same height, 
-all of its avenues the same width, and all the blocks are evenly spaced. The city is rectangular, where the north-west corner 
-marks the intersection of 1st street and 1st avenue. The streets continue southward, incrementing 1, 2, 3, 4 til infinity. 
+all of its avenues the same width, and all the blocks are evenly spaced. The city is rectangular, where the south-west corner 
+marks the intersection of 1st street and 1st avenue. The streets continue northward, incrementing 1, 2, 3, 4 til infinity. 
 And the avenues continue eastward, incrementing 1, 2, 3, 4 til infinity.
 
 Now we can simulate the city. We want to define the start and end locations. In this case, the location is described as a 3-tuple:
@@ -92,7 +92,7 @@ How do we properly model the traffic light? With nothing less than some good ol'
 ## Some good ol' statistics!
 
 We firstly assume that all street traffic lights have identical light cycle times, and likewise for all avenue traffic lights.
-They may or may not be aligned with each other, but 1st avenue's red won't be shorter than Madison's. We'll assume for now that the 
+They may or may not be aligned with each other, but 1st avenue's red won't be shorter than 2nd or 3rd's. We'll assume for now that the 
 "initial green" on each traffic light is unknown, and that each cycle is independent. 
 
 We can model each crosswalk as being associated with a random variable, which is the time in seconds the walker 
@@ -158,7 +158,7 @@ The City Council will allow you to run races in each of the following configurat
 - Avenue Block Length: (200m, 500m, 800m)
 - Street Crosswalk Length: (10m, 30m, 50m)
 - Avenue Crosswalk Length: (10m, 30m, 50m)
-- Avenue Traffic Cycle Times: (10, 15), (15, 10), (25, 30), (30, 25), (50, 55), (55, 50)
+- Avenue Traffic Cycle Times, denoted as (green seconds, red seconds): (10s, 15s), (15s, 10s), (25s, 30s), (30s, 25s), (50s, 55s), (55s, 50s)
 
 In order to ensure the experiment is conducted evenly, they allow you to race 5 times in each given configuration, 
 so as to even out the randomness of the traffic light time. 
@@ -176,7 +176,9 @@ And... we're off to the races!
 
 Here's one that shows a clear difference.
 In this case, the street policy finished in ~56.55s, and the avenue policy scored a low ~44.38s! 
-More than a 10s lead for staying along the avenue!
+More than a 10s lead for staying along the avenue! 
+
+Your friend is the blue walker with the "avenue" policy, and you are the red walker, preferring the "street" policy.
 
 <img src="{{ site.baseurl }}/assets/gifs/traffic_run_sample_avenue_policy_advantage.gif" width="800" height="800" />
 
