@@ -9,6 +9,8 @@ date: 2025-09-04 13:34:01 -0400
 
 Re. [Rex's Substack: Why did the chicken cross the road?](https://rexevans.substack.com/p/why-did-the-chicken-cross-the-road)
 
+_(All the code is available on my Github, [here](https://github.com/yuvaltimen/traffic_light_simulator).)_
+
 So I've been thinking about this a lot. 
 
 > In Option 2, you maintain the option to cross the avenue at any light before 45th. So, if you get stopped at a light as you are walking down towards 45th, you can always cross the avenue then and don’t have to wait.
