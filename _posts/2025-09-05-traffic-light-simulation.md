@@ -39,8 +39,8 @@ You'll be thrilled to hear that Chickenville is a mathematically ideal city.
 <!-- excerpt-end -->
 All of its streets are the same height, 
 all of its avenues the same width, and all the blocks are evenly spaced. The city is rectangular, where the north-west corner 
-marks the intersection of 1st street and A Avenue. The streets continue southward, incrementing 1, 2, 3, 4 til infinity. 
-And the avenues continue eastward starting with A, B, C,... and after Avenue Z, we have Avenue AA, AB, AC... and so on until infinity.
+marks the intersection of 1st street and 1st avenue. The streets continue southward, incrementing 1, 2, 3, 4 til infinity. 
+And the avenues continue eastward, incrementing 1, 2, 3, 4 til infinity.
 
 Now we can simulate the city. We want to define the start and end locations. In this case, the location is described as a 3-tuple:
 `(street, avenue, corner)`, where street is the street number, avenue is the avenue name, and corner is one of "northeast", "northwest", "southeast", "southwest".
@@ -127,12 +127,69 @@ the same cost. Now, using just this naive "expected value" of the wait time, let
 
 (12 * 15) + (11 * 3) + (11 * 2) + (2 * 30) + (1 * 5) + (1 * 4.5) = **304.5s**!
 
-I'm sure you noticed that this number is the same regardless of the path! The only way we can really take into account the best path 
+I'm sure you noticed that this number is the same regardless of the path. The only way we can really take into account the best path 
 is to simulate the traffic lights. Instead of taking the expected value, we should actually uniformly sample the red light 
 waiting time, and run this simulation enough times to get a significant result. 
 
 Enough theory. Let's do the simulation.
 
 ## Let's take a walk around Chickenville
+
+Chickenville is gorgeous this time of year! So you decide to go with your best friend to meet at the bar. 
+You meet up at 1st and 1st, on the South-West corner, which is the south-west-est point in all of Chickenville.
+The bar is on 5th street and 6th avenue, on the North-West corner. You, in dire need of a drink after this week's 
+layoffs at the firm, decide that the "street" policy is the best way to the bar: if you see a green light to cross the 
+avenue, you damn well better take it.
+
+Your friend disagrees, and instead argues for an "avenue" policy, where you should prefer to walk north along 1st avenue
+until you hit a red light or until you hit 5th street, and then turn east. He argues that you should "preserve" your 
+option to turn east until you really need to use it. It sounds like blasphemy - don't take the green light to 
+cross the avenue? How could that possibly be a better option?
+
+You both decide to run an experiment, whereby you will race! But there's a catch - the race will be conducted 12,000 times, 
+in different circumstances, where the Chickenville City Council has agreed to contribute to your experiment by changing the 
+city's configuration.
+
+The City Council will allow you to run races in each of the following configurations:
+
+- Street Block Length: 200.0m -> 800.0m (200m, 400m, 600m, 800m)
+- Avenue Block Length: 200.0m -> 800.0m (200m, 400m, 600m, 800m)
+- Street Crosswalk Length: 10.0 -> 50.0 (10.0m, 20.0m, 30.0m, 40.0m, 50.0m)
+- Avenue Crosswalk Length: 20.0 -> 60.0 (20.0m, 30.0m, 40.0m, 50.0m, 60.0m)
+- Avenue Traffic Cycle Times: (25.0s, 30.0s) -> (50.0s, 55.0s) (25s, 30s), (30s, 35s), (35s, 40s), (40s, 45s), (45s, 50s), (50s, 55s)
+
+In order to ensure the experiment is conducted evenly, they allow you to race 5 times in each given configuration, 
+so as to even out the randomness of the traffic light time. 
+
+4 * 5 * 4 * 5 * 6* 5 = 12,000
+
+And... we're off to the races!
+
+## The Chickenville race
+
+Here's one that shows a clear difference.
+In this case, the street policy finished in ~56.55s, and the avenue policy scored a low ~44.38s! 
+More than a 10s lead for staying along the avenue!
+
+<img src="{{ site.baseurl }}/assets/gifs/traffic_run_sample_avenue_policy_advantage.gif" width="800" height="800" />
+
+In this case, the avenue_policy (blue) won.
+
+## The results are in!
+
+The experiment was run, so let's take a look at the breakdown by policy:
+
+TABLE HERE
+
+
+
+On average - not a huge difference between the street and avenue policies.
+
+But rather, the benefit from choosing the street policy is that you have a much lower _minimum_. Almost a 12%  
+
+## Conclusion
+
+Alas - here's the conclusion.
+
 
 
