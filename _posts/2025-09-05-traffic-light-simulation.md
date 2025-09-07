@@ -146,22 +146,27 @@ until you hit a red light or until you hit 5th street, and then turn east. He ar
 option to turn east until you really need to use it. It sounds like blasphemy - don't take the green light to 
 cross the avenue? How could that possibly be a better option?
 
-You both decide to run an experiment, whereby you will race! But there's a catch - the race will be conducted 12,000 times, 
+You both decide to run an experiment, whereby you will race! But there's a catch - the race will be conducted 2,430 times, 
 in different circumstances, where the Chickenville City Council has agreed to contribute to your experiment by changing the 
 city's configuration.
 
 The City Council will allow you to run races in each of the following configurations:
 
-- Street Block Length: 200.0m -> 800.0m (200m, 400m, 600m, 800m)
-- Avenue Block Length: 200.0m -> 800.0m (200m, 400m, 600m, 800m)
-- Street Crosswalk Length: 10.0 -> 50.0 (10.0m, 20.0m, 30.0m, 40.0m, 50.0m)
-- Avenue Crosswalk Length: 20.0 -> 60.0 (20.0m, 30.0m, 40.0m, 50.0m, 60.0m)
-- Avenue Traffic Cycle Times: (25.0s, 30.0s) -> (50.0s, 55.0s) (25s, 30s), (30s, 35s), (35s, 40s), (40s, 45s), (45s, 50s), (50s, 55s)
+- Street Block Length: (200m, 500m, 800m)
+- Avenue Block Length: (200m, 500m, 800m)
+- Street Crosswalk Length: (10m, 30m, 50m)
+- Avenue Crosswalk Length: (10m, 30m, 50m)
+- Avenue Traffic Cycle Times: (10, 15), (15, 10), (25, 30), (30, 25), (50, 55), (55, 50)
 
 In order to ensure the experiment is conducted evenly, they allow you to race 5 times in each given configuration, 
 so as to even out the randomness of the traffic light time. 
 
-4 * 5 * 4 * 5 * 6* 5 = 12,000
+Let's check that these line up - multiplying the number of configurations we're trying for each parameter, we get:
+
+
+3 * 3 * 3 * 3 * 6 * 5 = 2,430
+
+
 
 And... we're off to the races!
 
@@ -173,23 +178,33 @@ More than a 10s lead for staying along the avenue!
 
 <img src="{{ site.baseurl }}/assets/gifs/traffic_run_sample_avenue_policy_advantage.gif" width="800" height="800" />
 
-In this case, the avenue_policy (blue) won.
+In this case, the avenue policy (blue) won. But this is just one run that had a significant difference - to see the 
+trend, we'll want to repeat the experiment many times. Well, 2,430 times to be exact!
 
 ## The results are in!
 
 The experiment was run, so let's take a look at the breakdown by policy:
 
-TABLE HERE
+|       | street_policy | avenue_policy | green_time | red_time |
+|-------|---------------|---------------|---------|----------|
+| count | 2,430      | 2,430      | 2,430   | 2,430    |
+| mean  | 229.67        | 234.60        | 30.83   | 30.83    |
+| std   | 68.83         | 71.38         | 16.69   | 16.69    |
+| min   | 66.80         | 66.80         | 10.00   | 10.00    |
+| 25%   | 178.78        | 179.69        | 15.00   | 15.00    |
+| 50%   | 256.80        | 262.82        | 27.50   | 27.50    |
+| 75%   | 269.45        | 280.63        | 50.00   | 50.00    |
+| max   | 410.92        | 410.92        | 55.00   | 55.00    |
 
 
+Looks like the street policy won! 
+On average, it took **229.67s**, as opposed to the **234.6s** for the avenue policy - a difference of about 2%.
 
-On average - not a huge difference between the street and avenue policies.
-
-But rather, the benefit from choosing the street policy is that you have a much lower _minimum_. Almost a 12%  
 
 ## Conclusion
 
-Alas - here's the conclusion.
+This simulation probably missed some key factors, so it's not conclusive. But from the results, the "street" policy 
+is actually the more promising one. So next time you're racing to the bar, you should prefer to cross the avenue 
+first if the avenue light is green, rather than "preserving" your option to cross by forgoing the green light.
 
-
-
+Cheers!
