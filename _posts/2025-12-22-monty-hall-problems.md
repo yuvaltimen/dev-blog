@@ -119,11 +119,11 @@ So we have N doors, M of which contain the prize (cars), and the remaining doors
 the host will reveal S of the doors to show sheep, and you are presented the choice of whether to stay with your original door 
 or to switch to one of the remaining doors. This introduces a few implicit constraints:
 
-`1. The number of doors (N), the number of cars (M) and the number of reveals (S) must all be positive integers:`
+1. `The number of doors, the number of cars and the number of reveals must all be positive integers.`
 
 $$ N, M, S \in \mathbb{N} $$
 
-`2. There must be at least enough sheep to allow the host to reveal S of them, even if the contestant had originally picked a sheep.`
+2. `There must be at least enough sheep to allow the host to reveal S of them, even if the contestant had originally picked a sheep.`
 
 $$ N - M > S \implies S < N - M $$
 
