@@ -75,7 +75,7 @@ we get. If we happened to pick the car we were in luck! If we picked one of the 
 So there's 1 case out of 3 that we win and 2 cases out of 3 that we lose. We can model this as the "Probability of 
 winning the prize given that we stay":
 
-$$ P(prize | stay) = 1/3 $$
+$$ P(prize | stay) = \frac{1}{3} $$
 
 However, if we look at the "Switch" strategy, things change a bit. Our strategy says that after the host reveals a door,
 we switch our choice to the last remaining door.  There's really two scenarios in this strategy:
@@ -87,7 +87,7 @@ Since choosing either one of the sheep randomly at first results in the same out
 revealed and the car remaining as the only door to switch to - then the odds of winning are the same given the initial 
 choice of either sheep. So since there's 2 cases  the "Probability of winning the prize given that we switch" is:
 
-$$ P(prize | switch) = 2/3 $$
+$$ P(prize | switch) = \frac{2}{3} $$
 
 Finally, to inform our strategy we can set up a simple inequality:
 
@@ -146,16 +146,29 @@ Five doors, two prizes, one reveal
 
 Since there are 2 cars and 5 total doors, then the "Probability of winning the prize given that we stay" is:
 
-$$ P(prize | stay) = 2/5 $$
+$$ P(prize | stay) = \frac{2}{5} $$
 
 As for if we take the "switch" strategy, there is again two scenarios.
 
 1. We happened to pick a car first. In this case, there's a 1/3 chance of winning. This is because our initial choice has taken one of the two cars out of the pool of possible selections, and the host's reveal removes one of the sheep from the pool. So a switch would leave us with 1 car and 2 sheep left, meaning a 1/3 chance of picking the remaining car and a 2/3 chance of picking one of the remaining sheep. 
-2. We happened to pick one of the sheep first. In this case there's a 2/3 chance of winning. This is because our initial choice has taken one of our two sheep out of the pool, and the host's selection has removed another sheep from the pool. So a switch would leave us with both cars and one sheep, meaning a 2/3 chance of picking one of the remaining cars, and a 1/2 chance of picking the remaining sheep.
+2. We happened to pick one of the sheep first. In this case there's a 2/3 chance of winning. This is because our initial choice has taken one of our three sheep out of the pool, and the host's selection has removed another sheep from the pool. So a switch would leave us with both cars and one sheep, meaning a 2/3 chance of picking one of the remaining cars, and a 1/2 chance of picking the remaining sheep.
 
-These are conditional probabilities, so to find the total probability we should take weigh them:
+These are conditional probabilities, so to find the total probability we should take weigh them.
+In 2 of the 5 cases, we have a 1/3 chance of winning, in 3 of the 5 cases we have a 2/3 chance of winning. 
+We find the average probability of winning by summing these conditional probabilities and dividing by the total number of cases: 
 
-$$  $$
+
+$$ P(prize | switch) = \frac{1}{5} \times [2  \times \frac{1}{3} + 3 \times \frac{2}{3}] $$
+
+$$ P(prize | switch) = \frac{1}{5} \times [\frac{2}{3} + \frac{6}{3}] $$
+
+$$ P(prize | switch) = \frac{1}{5} \times \frac{8}{3} $$
+
+$$ P(prize | switch) = \frac{8}{15} $$
+
+And our inequality again informs us to choose the "switch" strategy:
+
+$$ P(prize | switch) = \frac{8}{15} >  P(prize | stay) = \frac{2}{5} = \frac{6}{15} $$
 
 How about if we change S, the number of reveals? The max value for S based on our 2nd constraint, given N and M, would be 2.
 
@@ -170,4 +183,127 @@ Five doors, two prizes, two reveals
 | Sheep 2       | 0    | 1      |
 | Sheep 3       | 0    | 1      |
 
+Again, the "Probability of winning the prize given that we stay" is:
+
+$$ P(prize | stay) = \frac{2}{5} $$
+
+This doesn't change, no matter how many doors are revealed, even if S = 0.
+
+Considering the "switch" strategy, let's examine our two scenarios:
+
+1. We happened to pick a car first. In this case, there's a 1/2 chance of winning. This is because our initial choice has taken one of the two cars out of the pool of possible selections, and the host's reveal removes two of the sheep from the pool. So a switch would leave us with 1 car and 1 sheep left, meaning a 1/2 chance of picking the remaining car. 
+2. We happened to pick one of the sheep first. In this case there's a 100% chance of winning. This is because our initial choice has taken one of our three sheep out of the pool, and the host's two reveals have removed the other two sheep from the pool. So a switch would leave us with only the 2 remaining cars, meaning a 100% chance of winning.
+
+Finding the "Probability of winning the prize given that we switch":
+
+$$ P(prize | switch) = \frac{1}{5} \times [2  \times \frac{1}{2} + 3 \times 1] $$
+
+$$ P(prize | switch) = \frac{1}{5} \times [1 + 3] $$
+
+$$ P(prize | switch) = \frac{1}{5} \times 4 $$
+
+$$ P(prize | switch) = \frac{4}{5} $$
+
+Obviously it would make sense that revealing _two_ sheep instead of one would give us better odds of winning, since 
+it removes more sheep from the pool of possibilities to switch to. Formally, it's:
+
+$$ P(prize | switch) = \frac{4}{5} >  P(prize | stay) = \frac{2}{5} $$
+
+# Derivations
+
+We now have sufficient information to derive a formula to determine the probabilities. Let's start with the easy one.
+
+The "Probability of winning the prize given that we stay" is always the same:
+
+$$ P(prize | stay) = \frac{M}{N} $$
+
+This passes the sanity check, because regardless of the number of reveals, the probability stays the same - and as we can 
+see, the variable S does not appear in the formula. The probability is just the odds of picking a car from the set of choices. 
+
+How about the "Probability of winning the prize given that we switch"? I claim that the formula for this probability is:
+
+$$ P(prize | switch) = \frac{1}{N} \times (M  \times \frac{M-1}{N-S-1} + (N-M) \times \frac{M}{N-S-1}) $$
+
+Let's simplify this as much as possible - multiplying the numerators:
+
+$$ P(prize | switch) = \frac{1}{N} \times (\frac{M^2-M}{N-S-1} + \frac{NM-M^2}{N-S-1}) $$
+
+Combining like terms:
+
+$$ P(prize | switch) = \frac{1}{N} \times (\frac{M^2-M+NM-M^2}{N-S-1}) $$
+
+The M^2 terms cancel out:
+
+$$ P(prize | switch) = \frac{1}{N} \times (\frac{NM-M}{N-S-1}) $$
+
+Multiplying the denominator out:
+
+$$ P(prize | switch) = \frac{NM-M}{N^2-SN-N} $$
+
+Looks like this is our final formula! To verify, let's confirm the probabilities of the cases we've already manually done above:
+
+`N=3, M=1, S=1` - ie. the original Monty Hall Problem:
+
+$$ P(prize | switch) = \frac{(3)(1)-(1)}{(3)^2-(1)(3)-(3)} $$
+
+$$ P(prize | switch) = \frac{2}{3} $$
+
+That checks out! Now let's try both cases with 5 doors and 2 cars:
+
+`N=5, M=2, S=1`:
+
+$$ P(prize | switch) = \frac{(5)(2)-(2)}{(5)^2-(1)(5)-(5)} $$
+
+$$ P(prize | switch) = \frac{8}{15} $$
+
+Okay, looks good. Now for the last one - `N=5, M=2, S=2`:
+
+$$ P(prize | switch) = \frac{(5)(2)-(2)}{(5)^2-(2)(5)-(5)} $$
+
+$$ P(prize | switch) = \frac{4}{5} $$
+
+Very nice! So we now have formulas for the probabilities of each of the strategies. To determine the correct strategy, 
+we should check for which parameter boundaries the probability of one is higher than the other. In other words - under which 
+conditions is it ever worth it to stay rather than to switch? It would be worth it to stay if the 
+"Probability of winning the prize given that we stay" is greater than the "Probability of winning the prize given that we switch".
+
+$$ P(prize | stay) > P(prize | switch) $$
+
+$$ \frac{M}{N} > \frac{NM-M}{N^2-SN-N} $$
+
+Let's factor out a common factor of M/N from the right hand side:
+
+$$ \frac{M}{N} > \frac{(M)(N-1)}{(N)(N-S-1)} $$
+
+$$ \frac{M}{N} > \frac{M}{N} \times \frac{N-1}{N-S-1} $$
+
+And now we have all the information we need to make a definitive strategy recommendation. If we make the following substitutions:
+
+$$ U = \frac{M}{N} ; Z = \frac{N-1}{N-S-1} $$
+
+Then we can reframe the inequality with the following form:
+
+$$ U > U \times Z $$
+
+This is always true as long as Z < 0... but if we look at our assumptions, we can see that Z > 0 always:
+
+$$ N - M > S \implies N > M + S $$
+
+And so Z is always positive, because if all of N, M, S are natural numbers, then the minimum value of N is (M + S + 1). So 
+if we set N = (M + S + 1) then our Z value becomes:
+
+$$ Z = \frac{(M + S + 1)-1}{(M + S + 1)-S-1} $$
+
+$$ Z = \frac{M + S}{M} $$
+
+Since M and S are natural numbers, then Z > 0. 
+
+# Conclusion
+
+As long as:
+- there are some natural number of doors N
+- there are some natural number of prizes M (where M < N)
+- there are enough sheep to allow the host to reveal S of them, even if the contestant had originally picked a sheep (S < N - M)
+
+...then **you should always switch**!
 
