@@ -441,7 +441,7 @@ $$ \frac{NM-MB-MG-M-NM+NB+M}{N^2-NB-NG-N} > 0 $$
 
 $$ \frac{NB-MB-MG}{N^2-NB-NG-N} > 0 $$
 
-We know this expression is greater than 0 when the numerator is less than 0:
+We know this expression is greater than 0 when the numerator is greater than 0:
 
 $$ NB-MB-MG > 0 $$
 
