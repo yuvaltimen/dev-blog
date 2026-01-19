@@ -5,7 +5,7 @@ tags: statistics
 date: 2025-09-04 13:34:01 -0400
 ---
 
-<img src="{{ site.baseurl }}/assets/images/crosswalk_image.jpg"/>{:style="display:block; margin-left:auto; margin-right:auto"}
+<img src="{{ site.baseurl }}/assets/images/crosswalk_image.jpg" style="display:block; margin:0 auto; max-width:100%; height:auto;"/>
 
 Re. [Rex's Substack: Why did the chicken cross the road?](https://rexevans.substack.com/p/why-did-the-chicken-cross-the-road)
 
@@ -183,7 +183,7 @@ More than a 10s lead for staying along the avenue!
 
 Your friend is the blue walker with the "avenue" policy, and you are the red walker, preferring the "street" policy.
 
-<img src="{{ site.baseurl }}/assets/gifs/traffic_run_sample_avenue_policy_advantage.gif" width="800" height="800" />
+<img src="{{ site.baseurl }}/assets/gifs/traffic_run_sample_avenue_policy_advantage.gif" style="display:block; margin:0 auto; max-width:100%; height:auto;" />
 
 In this case, the avenue policy (blue) won. But this is just one run that had a significant difference - to see the 
 trend, we'll want to repeat the experiment many times. Well, 2,430 times to be exact!
