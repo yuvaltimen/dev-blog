@@ -63,7 +63,10 @@ time spent walking and time spent waiting for traffic lights.
 
 Let's do a quick example:
 
-<img src="{{ site.baseurl }}/assets/images/traffic_light_map.png" height="400"/>{:style="display:block; margin-left:auto; margin-right:auto"}
+<img
+  src="{{ site.baseurl }}/assets/images/traffic_light_map.png"
+  style="display:block; margin:0 auto; max-width:100%; height:auto;"
+/>
 
 To go from the `southwest corner of 86th st and 1st ave` to the `northeast corner of 74th str and 3rd ave`, we need to cross:
 - 12 street blocks
