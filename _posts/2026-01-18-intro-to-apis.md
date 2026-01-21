@@ -306,7 +306,7 @@ When this gets parsed out, the browser sees this as:
 
 - `/api/groups/12/members` the path to the Members resource
 - `?` - the delimiter that separates the path and the Query Parameters
-- `limit=8&sort_by=age&order=asc` -the Query Parameters section, which can be broken down per Query Param:
+- `limit=8&sort_by=age&order=asc` the Query Parameters section, which can be broken down per Query Param:
 
   - `limit = 8`
   - `sort_by = age`
@@ -342,8 +342,7 @@ value, allowing you to "paginate" through this query to access the rest of the r
 ```json
 {
   "data": [
-    ... the Event JSON data here as a list
-    ... perhaps this list is 100 objects long
+    ... 100 JSON objects here ...
   ],
   "total": 69420,
   "cursor_end": "114"
@@ -406,6 +405,9 @@ the closing quote mark from the name value:
 
 Obviously this won't work because I made up a fake API endpoint. Facebook's documentation shows you how 
 to actually list and create groups.
+
+Here's a really fun Pokemon API you can use to practice: https://pokeapi.co/. Try to read the 
+documentation and make requests in Postman.
 
 # Responses
 
