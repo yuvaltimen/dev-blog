@@ -12,7 +12,9 @@ So you want to use APIs to programmatically collect data? Sounds great!
 First it's good to note that there are many types of APIs, so when we talk about "an API", we are usually talking about 
 a specific company's API, such as "the Twitter API", or "the TicketData API".
 
+<!-- excerpt-start -->
 Most web products _provide_ an API, which is a way to expose and interact with the contents of a database in a safe and efficient way.
+<!-- excerpt-end -->
 
 An API is a mechanism for accessing information. Consider a two party system: a Client requests data from a Server,
 which responds to the client with the requested data. An API is the tool that the Server provides to the Client in 
@@ -393,7 +395,10 @@ Here's how this would look in Postman:
 <img src="{{ site.baseurl }}/assets/images/postman_post_request.png" />
 
 
-If you change the Body to be invalid JSON, Postman will show you an error:
+If you change the Body to be invalid JSON, Postman will show you an error. For example, I removed 
+the closing quote mark from the name value:
+
+`"name": "My Awesome`
 
 
 <img src="{{ site.baseurl }}/assets/images/postman_error_body.png" />
