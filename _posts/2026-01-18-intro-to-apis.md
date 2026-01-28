@@ -58,7 +58,7 @@ http://what-is-an-api.com:8080/base/path/to/resource
 Ultimately, we treat everything like a "resource", or an "object". For example, Users, Posts, Tickets, Seats, Credit
 Cards, etc. These things are all modeled as "resources". From here, we'll just refer to them as "objects".
 
-A given domain may include arbitrary-looking endpoints; for example, Facebook might have something like:
+In your experience with APIs, you may stumble upon arbitrary-looking endpoints; for example, Facebook might have something like:
 
 ```
 https://facebook.com/dwkoemfoekfj/qlwkdn2o3irh_22i314
@@ -99,9 +99,9 @@ So taking into account the implicit "GET" being made by the browser, a GET Reque
 
 ```GET http://what-is-an-api.com:8080/base/path/to/resource```
 
-Now the server knows exactly what to do. It will visit `what-is-an-api.com` at port `8080` and request to `GET` the
-endpoint `/base/path/to/resource`. This will run a query for "all instances of the given resource" - usually referred to 
-as "listing" the resource.
+Now the server knows exactly what to do. It will use the `http` protocol to visit the `what-is-an-api.com` domain 
+at port `8080` and request to `GET` the endpoint `/base/path/to/resource`. This will run a query for "all instances 
+of the given resource" - usually referred to as "listing" the resource.
 
 Let's try this on a real API - mine! Ha! Copy this into your browser and see what you get:
 
@@ -109,9 +109,10 @@ Let's try this on a real API - mine! Ha! Copy this into your browser and see wha
 https://p1xy94s1ni.execute-api.us-east-1.amazonaws.com/dev/events
 ```
 
-(I haven't configured the Domain Name Mapping yet, so that's why the domain is a bunch of garbled letters.)
+(Notice my domain: `p1xy94s1ni.execute-api.us-east-1.amazonaws.com` - I haven't configured the Domain Name Mapping yet, 
+so that's why the domain is a bunch of garbled letters.)
 
-You probably see a wall of data - try clicking the "Pretty-print" button and notice the structure. 
+You probably see a wall of data - try clicking the "Pretty-print" button (on Desktop only) and notice the structure. 
 It's using a format called JSON. JSON stands for JavaScript Object Notation. It's probably the most 
 standard format for data for now. The way it works is simple, but very powerful. It is defined recursively:
 
@@ -127,15 +128,18 @@ A JSON object is denoted with curly braces and has key-value pairs to denote its
 }
 ```
 
-Take this JSON for example - it has 3 attributes, and their values have different types. In order, we have:
-1. an `int` (denoting integers)
-2. a `string`
-3. a `float`, which is used to represent decimals
-4. a `bool`, short for boolean, so true or false
-5. a `null` value, meaning an absence of any data there. Null values are often special cases when working with data objects and should be paid attention to.
+Take this JSON for example - it has 5 attributes, and their values have different types. In order, we have:
+1. The value associated with `attribute_1` is an `int` (denoting integers)...
+2. For `attribute_2`, we have a `string`...
+3. For `attribute_3`, a `float`, which is used to represent decimals
+4. For `attribute_4`, a `bool`, short for boolean, so true or false
+5. For `attribute_5`, a `null` value, meaning an absence of any data there. Null values are often special cases when working with data objects and should be paid attention to.
 
 These data types are typically referred to as JSON atoms. They are the simplest forms of JSON data, and the object defined above is a JSON object containing 
-only JSON atoms. It is a simple JSON object that contains a "flat" set of attributes. But JSON can also define lists of values, so you can have:
+only JSON atoms. You can think of JSON atoms as direct representation of real data fields, so for example, if we were modeling mailing addresses, the street name 
+would be a `string`, and the house number might be an `int`. JSON atoms are the actual values, whereas JSON "objects" are the full JSON data structure.
+In the case above we have a simple JSON object that contains a "flat" set of attributes; each of its attributes' values is a single JSON atom. 
+But JSON can also define lists of values, so you can have:
 
 ```json
 {
@@ -147,7 +151,7 @@ only JSON atoms. It is a simple JSON object that contains a "flat" set of attrib
 } 
 ```
 
-In this case the value of attribute_5 is a list containing other data atoms. And in fact, JSON can even be nested  
+In this case the value of attribute_5 is a list containing other data atoms. And in fact, JSON can even be nested, meaning the value of an attribute can itself be a JSON object:  
 
 
 ```json
@@ -163,29 +167,80 @@ In this case the value of attribute_5 is a list containing other data atoms. And
 }
 ```
 
+There is no limit to the depth of nesting you can do, and each attribute's value can be either:
+1. a JSON atom
+2. a JSON object
+3. a list of JSON atoms or objects
+
+To make this concrete, here's an example of a JSON object with complex structure:
+
+```json
+{
+  "order": {
+      "id": 1,
+      "user": {
+          "name": "John Smith",
+          "dob": "3/12/1991"
+      },
+      "items": [
+          {
+            "sku": "19224",
+            "name": "Avocado",
+            "amount": 3,
+            "unit_price": 3.99
+          },
+          {
+            "sku": "12414",
+            "name": "Banana",
+            "amount": 1,
+            "unit_price": 0.30
+          }
+      ],
+      "method": "delivery",
+      "details": {
+          "address": {
+          "street": "Main Street",
+          "house_number": 135,
+          "apt_number": null
+      },
+      "delivery_instructions": "Just leave at the door - thanks!"
+    }
+  }
+}
+```
+
+Copy-paste this JSON into [this website](https://jsonformatter.curiousconcept.com/) to view it interactively.
+
+This JSON defines a grocery order, showing the order's ID, the user who ordered it, the items he ordered, and the delivery details. 
+
 You can access JSON attributes using 2 notations:
 
 ### Dot Notation:
 
 If the above JSON was saved to a variable called `obj`, you can access its attributes by chaining dots: 
-The `obj.attribute_1` will evaluate to the int `1` and `obj.attribute_5.inner_attr` will evaluate to the string `value of inner attr`.
+The `obj.order.id` will evaluate to the int `1` and `obj.order.user.name` will evaluate to the string `John Smith`.
 
 ### Accessor Notation:
 
 Some languages (ie. Python) uses the notation `object["attribute"]` to denote attribute access. So for the example above, the 
-equivalent would be `obj["attribute_1"]` and `obj["attribute_5"]["inner_attr"]`. 
+equivalent would be `obj["order"]["id"]` and `obj["order"]["user"]["name"]`.
 
 ### Accessing Lists Elements
 
-```json
+Notice how the `order.items` attribute is a JSON list of JSON objects. Lists are ordered data structures, and we access their 
+elements by using the index of the element. So to access the first element, we would do:
 
-{
-  "attr": [1, 2, 3, 4, 5]
-}
+```
+obj.order.items[0]
 ```
 
-If this JSON was saved to a variable called `obj` then we can access its attributes like this: `obj[0]`, `obj[1]`, `obj[2]`, `obj[3]`. 
-JSON lists are 0-based indexed, so for a list of size N, the first element is always `obj[0]` and the last is always `obj[N-1]`.
+or
+
+```
+obj["order"]["items"][0]
+```
+
+JSON Lists are 0-based indexed, so for a list of size N, the first element is always `obj[0]` and the last is always `obj[N-1]`.
 
 ### Style Choice
 
@@ -194,41 +249,20 @@ you're using or the software that is evaluating your input.
 
 Dot Notation:
 ```
-obj.attribute.other_attribute[3].name
+obj.order.items[0].name
+
+^ This evaluates to "Avocado"
 ```
 
 Accessor Notation
 
 ```
-obj["attribute"]["other_attribute"][3]["name"]
+obj["order"]["items"][1]["name"]
+
+^ This evaluates to "Banana"
 ```
 
-
-And what makes JSON powerful is that in the key-value pairs, the value can be any of the JSON atoms or another JSON object, or list of atoms/objects. 
-You can nest it to get infinitely complex. Here's what an API Response might look like: 
-
-```json
-[
-  {
-  "id": 1,  
-  "name": "Jane Doe",
-  "age": 37,
-  "emails": ["jdoe1@email.com", "jadoe2@email.com"],
-  "info": {
-        "signed_up": "2026-01-01",
-        "location": {
-              "street": "First Street",
-              "house_number": 444,
-              "city": "Springfield",
-              "state": "NY"
-        }
-      }
-  }
-]
-```
-
-Notice here that the top level object (ie. the "outer" object) is actually a list (`[]`) containing a single object (`{}`).
-
+Okay enough JSON, back to HTTP and APIs.
 
 # Parameters of HTTP Requests
 
@@ -433,7 +467,13 @@ Most of the time, it falls into these specific status codes, which are worth mem
 - `429`: Too Many Requests (you might see this if you spam the Send button and get rate limited)
 - `500`: Server Error (this means the server broke ...and you've discovered a potential hack! Or their developers don't get paid enough...)
 
+# Conclusion
+
+In this article we covered a lot: how URLs are parsed, HTTP Request types, how JSON works, how to GET and POST data to 
+a server, and how to understand the response code. These tools will give you the basis for how to write a program that 
+programmatically constructs requests and parses the results.
+
 There are tons of other articles and documents to go from here, just look around. But now you know the basics. 
 One good resource I'd recommend if you want to go very deep is the Mozilla Developer Network: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Session.
 
-Happy data requesting!
+Happy data-ing!
