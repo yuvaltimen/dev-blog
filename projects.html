@@ -4,15 +4,16 @@ title: Projects
 ---
 <h1>{{ page.title }}</h1>
 
-<ul>
-    {% for project in site.projects %}
-        <li>
-            <div>
-                <h2><a href="{{ site.baseurl }}{{ project.url }}">{{ project.title }}</a></h2>
-                {%- if project.media -%}
-                <img src="{{ site.baseurl }}{{ project.media }}" height="50"/>
-                {%- endif -%}
-            </div>
-        </li>
-    {% endfor %}
-</ul>
+<div class="project-grid">
+  {% for project in site.projects %}
+    <a href="{{ site.baseurl }}{{ project.url }}" class="project-card" style="text-decoration:none; color:inherit;">
+      <h2 style="font-size:1.3rem;">{{ project.title }}</h2>
+      {%- if project.subtitle -%}
+        <span class="subtitle">{{ project.subtitle }}</span>
+      {%- endif -%}
+      {%- if project.media -%}
+        <img src="{{ site.baseurl }}{{ project.media }}" alt="{{ project.title }}" loading="lazy" />
+      {%- endif -%}
+    </a>
+  {% endfor %}
+</div>

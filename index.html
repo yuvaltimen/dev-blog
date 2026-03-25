@@ -1,0 +1,59 @@
+---
+layout: default
+title: Home
+---
+
+<section class="hero">
+  <h1>{{ site.title | escape }}</h1>
+  <p class="tagline">Thoughts on math, software, data, and everything in between.</p>
+</section>
+
+<section>
+  <div class="section-heading">
+    <h2>Latest Posts</h2>
+    <a href="{{ "/blog/" | relative_url }}">View all &rarr;</a>
+  </div>
+
+  <ul class="card-list">
+    {%- for post in site.posts limit:3 -%}
+      <li class="card">
+        <h3 style="margin-bottom:4px;">
+          <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+        </h3>
+        <div class="post-meta">
+          <time datetime="{{ post.date | date_to_xmlschema }}">
+            {{ post.date | date_to_string: "ordinal", "US" }}
+          </time>
+          {% for tag in post.tags %}
+            <span class="tag" style="cursor:default;">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% assign excerptParts = post.excerpt | split: "<!-- excerpt-start -->" %}
+        {% if excerptParts[1] %}
+          <p class="post-excerpt">{{ excerptParts[1] | strip_html | strip_newlines | truncatewords: 30 }}</p>
+        {% endif %}
+      </li>
+    {%- endfor -%}
+  </ul>
+</section>
+
+<section style="margin-top:40px;">
+  <div class="section-heading">
+    <h2>Projects</h2>
+    <a href="{{ "/projects.html" | relative_url }}">View all &rarr;</a>
+  </div>
+
+  <div class="project-grid">
+    {%- for project in site.projects -%}
+      <a href="{{ site.baseurl }}{{ project.url }}" class="project-card" style="text-decoration:none; color:inherit;">
+        <h3>{{ project.title }}</h3>
+        {%- if project.subtitle -%}
+          <span class="subtitle">{{ project.subtitle }}</span>
+        {%- endif -%}
+        {%- if project.media -%}
+          <img src="{{ site.baseurl }}{{ project.media }}" alt="{{ project.title }}" loading="lazy" />
+        {%- endif -%}
+      </a>
+    {%- endfor -%}
+  </div>
+</section>
