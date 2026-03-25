@@ -1,0 +1,68 @@
+---
+layout: default
+title: Blog
+---
+
+<h1>{{ page.title }}</h1>
+
+{% comment %} Collect all unique tags {% endcomment %}
+{%- assign all_tags = "" | split: "" -%}
+{%- for post in site.posts -%}
+  {%- for tag in post.tags -%}
+    {%- unless all_tags contains tag -%}
+      {%- assign all_tags = all_tags | push: tag -%}
+    {%- endunless -%}
+  {%- endfor -%}
+{%- endfor -%}
+
+{% if all_tags.size > 0 %}
+<div class="tag-filter-bar">
+  <span class="tag-filter-label">Filter:</span>
+  <button class="tag active" data-tag="all">All</button>
+  {%- for tag in all_tags -%}
+    <button class="tag" data-tag="{{ tag }}">{{ tag }}</button>
+  {%- endfor -%}
+</div>
+{% endif %}
+
+<ul class="card-list" id="post-list">
+  {% for post in paginator.posts %}
+    <li class="card post-card" data-tags="{{ post.tags | join: ',' }}">
+      <h2 style="margin-bottom:4px;">
+        <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+      </h2>
+      <div class="post-meta">
+        <time datetime="{{ post.date | date_to_xmlschema }}">
+          {{ post.date | date_to_string: "ordinal", "US" }}
+        </time>
+        {%- assign words = post.content | number_of_words -%}
+        {%- assign minutes = words | divided_by: 200 -%}
+        {%- if minutes < 1 -%}{%- assign minutes = 1 -%}{%- endif -%}
+        <span class="reading-time">{{ minutes }} min read</span>
+      </div>
+      <div>
+        {% for tag in post.tags %}
+          <span class="tag" data-tag="{{ tag }}">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% assign excerptParts = post.excerpt | split: "<!-- excerpt-start -->" %}
+      {% if excerptParts[1] %}
+        <p class="post-excerpt">{{ excerptParts[1] | strip_html | strip_newlines | truncatewords: 40 }}</p>
+      {% endif %}
+      <a class="read-more" href="{{ site.baseurl }}{{ post.url }}">Read more &rarr;</a>
+    </li>
+  {% endfor %}
+</ul>
+
+{% comment %} Pagination controls {% endcomment %}
+{% if paginator.total_pages > 1 %}
+<nav class="pagination" aria-label="Blog pagination">
+  {% if paginator.previous_page %}
+    <a href="{{ paginator.previous_page_path | relative_url }}">&larr; Newer</a>
+  {% endif %}
+  <span class="current">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  {% if paginator.next_page %}
+    <a href="{{ paginator.next_page_path | relative_url }}">Older &rarr;</a>
+  {% endif %}
+</nav>
+{% endif %}

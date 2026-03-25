@@ -27,6 +27,11 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  yuvaltimen
 linkedin_username: yuval-timen
 
+author: Yuval Timen
+
+paginate: 5
+paginate_path: "/blog/page:num/"
+
 collections:
   posts:
   projects:
@@ -41,6 +46,7 @@ excerpt_separator: <!-- excerpt-end -->
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-paginate
 
 # Exclude from processing.
 # The following items will not be processed, by default.

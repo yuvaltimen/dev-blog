@@ -1,0 +1,826 @@
+---
+# Front matter required for Jekyll to process this file
+---
+
+// Override minima variables BEFORE importing the theme
+$base-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+$base-font-size: 17px;
+$base-line-height: 1.65;
+$content-width: 860px;
+$on-laptop: 860px;
+
+$text-color: #1a1a2e;
+$background-color: #fafafa;
+$brand-color: #4361ee;
+$grey-color: #6b7280;
+
+// Import the full minima theme (base, layout, syntax-highlighting)
+@import "minima";
+
+// ============================================================
+// CUSTOM STYLES — appended after minima
+// ============================================================
+
+// --- CSS Custom Properties (for dark mode toggling) ---
+:root {
+  --color-bg: #fafafa;
+  --color-text: #1a1a2e;
+  --color-heading: #0f0f23;
+  --color-primary: #4361ee;
+  --color-primary-hover: #3a56d4;
+  --color-secondary: #7209b7;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f0f0f5;
+  --color-border: #e5e7eb;
+  --color-muted: #6b7280;
+  --color-code-bg: #f0f1f6;
+  --color-code-text: #2e3440;
+  --color-tag-bg: #e8eaff;
+  --color-tag-text: #4361ee;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] {
+  --color-bg: #0f0f23;
+  --color-text: #cdd6f4;
+  --color-heading: #e2e8f0;
+  --color-primary: #7c93f5;
+  --color-primary-hover: #9db2ff;
+  --color-secondary: #c77dff;
+  --color-surface: #1a1a2e;
+  --color-surface-hover: #24243e;
+  --color-border: #2d2d4a;
+  --color-muted: #9ca3af;
+  --color-code-bg: #2a2a3d;
+  --color-code-text: #cdd6f4;
+  --color-tag-bg: #24243e;
+  --color-tag-text: #7c93f5;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+// --- Global overrides using CSS vars ---
+// These must override minima's compiled SCSS values which are hardcoded at build time.
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-heading);
+}
+
+// Override minima's a { color: $brand-color } and a:hover { color: $text-color }
+// and a:visited { color: darken($brand-color, 15%) } — all bake in light-mode colors.
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+  }
+
+  &:visited {
+    color: var(--color-primary);
+  }
+}
+
+// Override minima's .svg-icon { fill: #{$grey-color} } — fixed gray, bad in dark mode.
+.svg-icon {
+  fill: var(--color-muted);
+}
+
+// Override minima's list/paragraph colors that inherit from body $text-color
+p, li, dd, dt {
+  color: var(--color-text);
+}
+
+// --- Inter font import ---
+// Loaded via head.html <link> tag (see Step 4). No @import here to avoid render-blocking.
+
+// --- Sticky Header ---
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  border-top: none;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+
+  // When JS adds .header-hidden on long-content pages, slide header up out of view.
+  &.header-hidden {
+    transform: translateY(-100%);
+  }
+}
+
+// Solid background on header — no transparency/blur, so header text stays readable
+// when scrolling over code blocks or dark elements.
+
+
+// Override minima's .site-title { color: $grey-color-dark } — bakes in dark color.
+.site-title {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--color-heading);
+
+  &:hover {
+    text-decoration: none;
+    color: var(--color-primary);
+  }
+
+  &, &:visited {
+    color: var(--color-heading);
+  }
+}
+
+// Override minima's .site-nav .page-link { color: $text-color } — must match specificity.
+.site-nav .page-link {
+  color: var(--color-text);
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 2px;
+
+  &:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  &:visited {
+    color: var(--color-text);
+  }
+
+  &.active {
+    color: var(--color-primary);
+
+    &:visited {
+      color: var(--color-primary);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--color-primary);
+      border-radius: 1px;
+    }
+  }
+}
+
+// Override minima's mobile nav: .site-nav @mobile { background-color: $background-color; border: $grey-color-light }
+@media screen and (max-width: 600px) {
+  .site-nav {
+    background-color: var(--color-surface) !important;
+    border-color: var(--color-border) !important;
+  }
+
+  .site-nav .menu-icon > svg {
+    fill: var(--color-text);
+  }
+}
+
+// --- Dark Mode Toggle Button ---
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  vertical-align: middle;
+  margin-left: 12px;
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+// --- Footer ---
+// Override minima's .site-footer { border-top: $grey-color-light }
+// and .footer-col-wrapper { color: $grey-color }
+.site-footer {
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.footer-col-wrapper {
+  color: var(--color-muted);
+}
+
+.footer-heading {
+  color: var(--color-heading);
+}
+
+// --- Cards ---
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px 28px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease, background-color 0.3s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+  }
+}
+
+.card-list {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// --- Tag Badges ---
+.tag {
+  display: inline-block;
+  background-color: var(--color-tag-bg);
+  color: var(--color-tag-text);
+  border-radius: 9999px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border: none;
+  margin: 0 4px 4px 0;
+
+  &:hover {
+    background-color: var(--color-primary);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  &.active {
+    background-color: var(--color-primary);
+    color: #fff;
+  }
+}
+
+// --- Tag Filter Bar ---
+.tag-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.tag-filter-label {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+// --- Post Meta ---
+// Override minima's .post-meta { font-size: $small-font-size; color: $grey-color }
+.post-meta {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+// --- Inline code in paragraphs ---
+// Use the code-bg color so inline code stands out from surrounding text in both modes.
+:not(pre) > code {
+  background-color: var(--color-code-bg);
+  color: var(--color-code-text);
+  border: 1px solid var(--color-border);
+}
+
+// --- Horizontal rules ---
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+// --- Strong/bold text ---
+strong, b {
+  color: var(--color-heading);
+}
+
+.reading-time {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+// --- Post Header (individual post page) ---
+.post-header-block {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.post-header-block h1 {
+  font-size: 2.2rem;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  color: var(--color-heading);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-bottom: 16px;
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+// --- Post Excerpt ---
+.post-excerpt {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.read-more {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 12px;
+  color: var(--color-primary);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// --- Prev/Next Navigation ---
+.post-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+  gap: 16px;
+}
+
+.post-nav a {
+  font-size: 0.9rem;
+  max-width: 48%;
+}
+
+.post-nav .next {
+  text-align: right;
+  margin-left: auto;
+}
+
+// --- Project Cards ---
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+
+  @media screen and (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-card {
+  @extend .card;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card img {
+  max-height: 80px;
+  width: auto;
+  object-fit: contain;
+  margin: 12px 0;
+}
+
+.project-card h2 {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+
+.project-card .subtitle {
+  color: var(--color-muted);
+  font-style: italic;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+// --- Project Detail Page ---
+.project-hero-img {
+  max-width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.github-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  margin: 12px 0;
+
+  &:hover {
+    background-color: var(--color-primary-hover);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  &:visited {
+    color: #fff;
+  }
+}
+
+// --- Hero Section (Home page) ---
+.hero {
+  text-align: center;
+  padding: 48px 0 32px;
+  margin-bottom: 32px;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  margin-bottom: 8px;
+}
+
+.hero .tagline {
+  color: var(--color-muted);
+  font-size: 1.15rem;
+  margin-bottom: 0;
+}
+
+.section-heading {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-heading a {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+// --- Code Blocks ---
+// Override minima's pre,code { background-color: #eef; border: 1px solid $grey-color-light }
+pre, code {
+  background-color: var(--color-code-bg);
+  color: var(--color-code-text);
+  border: 1px solid var(--color-border);
+}
+
+pre {
+  border-radius: 8px;
+  padding: 16px 20px;
+  overflow-x: auto;
+  position: relative;
+}
+
+code {
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.88em;
+  font-family: "JetBrains Mono", "Fira Code", "SF Mono", Consolas, monospace;
+}
+
+pre code {
+  border: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+// --- Highlighter wrapper ---
+// Jekyll wraps code blocks in .highlighter-rouge > .highlight > pre > code.
+// The wrapper needs matching bg + radius so rounded corners on <pre> don't
+// expose a mismatched parent background color.
+.highlighter-rouge {
+  background-color: var(--color-code-bg);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+// --- Syntax Highlighting (full override of minima's _syntax-highlighting.scss) ---
+// Minima hardcodes ALL token colors for a white background. We override every one
+// with CSS-var-aware colors that work in both light and dark mode.
+:root {
+  --syn-comment: #6a737d;
+  --syn-keyword: #7c3aed;
+  --syn-string: #16803a;
+  --syn-number: #0550ae;
+  --syn-operator: #c2255c;
+  --syn-function: #7c3aed;
+  --syn-class: #7c3aed;
+  --syn-variable: #b45309;
+  --syn-tag: #16803a;
+  --syn-attr: #0550ae;
+  --syn-builtin: #0550ae;
+  --syn-error-fg: #cb2431;
+  --syn-error-bg: #ffeef0;
+  --syn-deleted-bg: #ffeef0;
+  --syn-inserted-bg: #e6ffed;
+  --syn-highlight-bg: var(--color-code-bg);
+}
+
+[data-theme="dark"] {
+  --syn-comment: #8b949e;
+  --syn-keyword: #d2a8ff;
+  --syn-string: #a5d6ff;
+  --syn-number: #79c0ff;
+  --syn-operator: #ff7b72;
+  --syn-function: #d2a8ff;
+  --syn-class: #f0883e;
+  --syn-variable: #ffa657;
+  --syn-tag: #7ee787;
+  --syn-attr: #79c0ff;
+  --syn-builtin: #79c0ff;
+  --syn-error-fg: #ffa198;
+  --syn-error-bg: #490202;
+  --syn-deleted-bg: #490202;
+  --syn-inserted-bg: #04260f;
+  --syn-highlight-bg: var(--color-code-bg);
+}
+
+// Override minima's .highlight { background: #fff } and .highlighter-rouge & { background: #eef }
+.highlight {
+  background: var(--syn-highlight-bg);
+
+  .highlighter-rouge & {
+    background: var(--syn-highlight-bg);
+  }
+
+  // Comments
+  .c, .cm, .c1, .cs    { color: var(--syn-comment); font-style: italic }
+  .cp                   { color: var(--syn-comment); font-weight: bold }
+
+  // Errors
+  .err                  { color: var(--syn-error-fg); background-color: var(--syn-error-bg) }
+
+  // Keywords & Operators
+  .k, .kc, .kd, .kp, .kr { color: var(--syn-keyword); font-weight: bold }
+  .kt                   { color: var(--syn-keyword); font-weight: bold }
+  .o, .ow               { color: var(--syn-operator); font-weight: bold }
+
+  // Strings
+  .s, .sb, .sc, .sd, .s2, .se, .sh, .si, .sx, .s1 {
+    color: var(--syn-string);
+  }
+  .sr                   { color: var(--syn-string) }
+  .ss                   { color: var(--syn-variable) }
+
+  // Numbers
+  .m, .mf, .mh, .mi, .mo, .il { color: var(--syn-number) }
+
+  // Names
+  .na                   { color: var(--syn-attr) }
+  .nb, .bp              { color: var(--syn-builtin) }
+  .nc                   { color: var(--syn-class); font-weight: bold }
+  .no, .nv, .vc, .vg, .vi { color: var(--syn-variable) }
+  .ne, .nf              { color: var(--syn-function); font-weight: bold }
+  .ni                   { color: var(--syn-variable) }
+  .nn                   { color: var(--syn-comment) }
+  .nt                   { color: var(--syn-tag) }
+
+  // Generic
+  .ge                   { font-style: italic }
+  .gs                   { font-weight: bold }
+  .gd                   { color: var(--syn-error-fg); background-color: var(--syn-deleted-bg) }
+  .gd .x                { color: var(--syn-error-fg); background-color: var(--syn-deleted-bg) }
+  .gi                   { color: var(--syn-tag); background-color: var(--syn-inserted-bg) }
+  .gi .x                { color: var(--syn-tag); background-color: var(--syn-inserted-bg) }
+  .go                   { color: var(--syn-comment) }
+  .gp                   { color: var(--syn-comment) }
+  .gr, .gt              { color: var(--syn-error-fg) }
+  .gh, .gu              { color: var(--syn-comment) }
+  .w                    { color: var(--syn-comment) }
+}
+
+// --- Copy Button ---
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: var(--color-surface);
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+}
+
+pre:hover .copy-btn {
+  opacity: 1;
+}
+
+// --- Pagination ---
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.pagination a,
+.pagination span {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pagination a {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-primary);
+    text-decoration: none;
+  }
+}
+
+.pagination .current {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+// --- Blog Post Images ---
+.page-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 24px auto;
+}
+
+// --- Blockquotes ---
+// Override minima's blockquote { color: $grey-color; border-left: 4px solid $grey-color-light }
+blockquote {
+  border-left: 4px solid var(--color-primary);
+  color: var(--color-muted);
+  background-color: var(--color-surface);
+  padding: 12px 20px;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  transition: background-color 0.3s ease;
+
+  // Ensure text inside blockquotes also uses the right color
+  p, li, a:not(:hover) {
+    color: var(--color-muted);
+  }
+}
+
+// --- Tables ---
+// Override minima's table { color: lighten($text-color, 18%); border: $grey-color-light }
+// and all th/td/tr background-color values that are hardcoded for light mode.
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 24px 0;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+
+  th, td {
+    border: 1px solid var(--color-border);
+    padding: 10px 14px;
+    text-align: left;
+  }
+
+  th {
+    background-color: var(--color-surface);
+    font-weight: 600;
+    border-bottom-color: var(--color-border);
+  }
+
+  td {
+    border-color: var(--color-border);
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--color-surface);
+  }
+
+  tr:nth-child(odd) {
+    background-color: var(--color-bg);
+  }
+}
+
+// --- 404 Page ---
+.error-page {
+  text-align: center;
+  padding: 80px 0;
+}
+
+.error-page h1 {
+  font-size: 6rem;
+  color: var(--color-primary);
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+// --- Reading Progress Bar ---
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  z-index: 200;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+// --- Mobile nav improvements ---
+.site-nav {
+  .trigger {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+  }
+}
+
+// --- Focus styles for accessibility ---
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+// --- Smooth scroll ---
+html {
+  scroll-behavior: smooth;
+}
+
+// --- Print styles ---
+@media print {
+  .site-header,
+  .site-footer,
+  .theme-toggle,
+  .reading-progress,
+  .post-nav,
+  .pagination,
+  .copy-btn {
+    display: none !important;
+  }
+
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+}
