@@ -1,12 +1,59 @@
 ---
 layout: default
 ---
-<h1>{{ page.title }}</h1>
-<p>{{ page.date | date_to_string: "ordinal", "US" }}</p>
-{% for tag in page.tags %}
-<p style="background-color: #d6d8de; color: #4b5563; border-radius: 9999px; padding: 4px 12px; font-size: 0.875rem; font-weight: 500; display: inline-block;">{{ tag }}</p>
-{% endfor %}
+<article>
+  <a class="back-link" href="{{ "/blog/" | relative_url }}">&larr; Back to blog</a>
 
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+  <header class="post-header-block">
+    <h1>{{ page.title }}</h1>
+    <div class="post-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">
+        {{ page.date | date_to_string: "ordinal", "US" }}
+      </time>
+      {%- assign words = content | number_of_words -%}
+      {%- assign minutes = words | divided_by: 200 -%}
+      {%- if minutes < 1 -%}{%- assign minutes = 1 -%}{%- endif -%}
+      <span class="reading-time">{{ minutes }} min read</span>
+    </div>
+    <div>
+      {% for tag in page.tags %}
+        <span class="tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+  </header>
 
-{{ content }}
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      startup: {
+        pageReady: function () {
+          return MathJax.startup.defaultPageReady().then(function () {
+            document.querySelectorAll('mjx-container[display="true"]').forEach(function (el) {
+              if (!el.parentElement.classList.contains('math-scroll-wrapper')) {
+                var wrapper = document.createElement('div');
+                wrapper.className = 'math-scroll-wrapper';
+                el.parentNode.insertBefore(wrapper, el);
+                wrapper.appendChild(el);
+              }
+            });
+          });
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+  {{ content }}
+
+  <nav class="post-nav" aria-label="Post navigation">
+    {% if page.previous %}
+      <a class="prev" href="{{ site.baseurl }}{{ page.previous.url }}">&larr; {{ page.previous.title }}</a>
+    {% endif %}
+    {% if page.next %}
+      <a class="next" href="{{ site.baseurl }}{{ page.next.url }}">{{ page.next.title }} &rarr;</a>
+    {% endif %}
+  </nav>
+</article>
