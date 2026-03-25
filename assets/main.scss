@@ -797,9 +797,166 @@ input:focus-visible {
   border-radius: 2px;
 }
 
+// --- MathJax display equations: scroll on mobile instead of overflowing ---
+.math-scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
 // --- Smooth scroll ---
 html {
   scroll-behavior: smooth;
+}
+
+// ============================================================
+// MOBILE RESPONSIVE IMPROVEMENTS
+// ============================================================
+
+@media screen and (max-width: 600px) {
+  // --- Wrapper padding ---
+  .wrapper {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  // --- Typography scaling ---
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero .tagline {
+    font-size: 1rem;
+  }
+
+  .post-header-block h1 {
+    font-size: 1.6rem;
+  }
+
+  .section-heading {
+    font-size: 1.2rem;
+  }
+
+  // --- Card padding ---
+  .card {
+    padding: 16px 18px;
+  }
+
+  // --- Post navigation stacks vertically ---
+  .post-nav {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .post-nav a {
+    max-width: 100%;
+  }
+
+  .post-nav .next {
+    text-align: left;
+    margin-left: 0;
+  }
+
+  // --- Tables scroll horizontally ---
+  .page-content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // --- Code blocks ---
+  pre {
+    padding: 12px 14px;
+    font-size: 0.82em;
+  }
+
+  // Always show copy button on touch devices (no hover)
+  .copy-btn {
+    opacity: 1;
+  }
+
+  // --- Inline code word-break ---
+  :not(pre) > code {
+    word-break: break-word;
+  }
+
+  // --- Tap targets ---
+  .tag {
+    padding: 6px 14px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .pagination a,
+  .pagination span {
+    padding: 10px 16px;
+  }
+
+  .theme-toggle {
+    padding: 8px 12px;
+    min-height: 36px;
+  }
+
+  // --- Error page ---
+  .error-page h1 {
+    font-size: 4rem;
+  }
+
+  // --- Hero section ---
+  .hero {
+    padding: 32px 0 20px;
+    margin-bottom: 24px;
+  }
+
+  // --- Blog card headings ---
+  .card h2 {
+    font-size: 1.15rem;
+  }
+
+  .card h3 {
+    font-size: 1.05rem;
+  }
+
+  // --- Blockquote padding ---
+  blockquote {
+    padding: 10px 14px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  // --- Post content images full-bleed ---
+  .page-content img {
+    margin: 16px auto;
+    border-radius: 6px;
+  }
+
+  // --- Footer ---
+  .site-footer .wrapper {
+    padding: 20px 16px;
+  }
+}
+
+// Very small screens (below 380px)
+@media screen and (max-width: 380px) {
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .post-header-block h1 {
+    font-size: 1.4rem;
+  }
+
+  .post-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .card {
+    padding: 14px;
+  }
 }
 
 // --- Print styles ---
