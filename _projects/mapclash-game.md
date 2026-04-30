@@ -8,6 +8,16 @@ media: /assets/images/maptap-img.png
 _You can [play MapClash](https://mapclash.xyz) live!_
 
 
+## What the Score Tiers Mean
+
+| Score | Label | What it means |
+|-------|-------|---------------|
+| 80–100 | Excellent | You could draw this on a blank map and a geographer would recognize it |
+| 60–79 | Good | Solid geographic knowledge - right place, right general shape |
+| 40–59 | Okay | You know roughly where this is but the shape needs work |
+| 10–39 | Poor | Some overlap, but significant errors in position or shape |
+| 0–9 | Miss | The drawing didn't meaningfully overlap the target |
+
 # How MapClash Scores Your Drawing
 
 When you sketch a country or state from memory, MapClash compares your drawing against the real border and produces a score from 0 to 100. The score is built from three
@@ -101,16 +111,6 @@ Any drawing that overlaps the target at all - even a tiny corner - earns a minim
 
 A perfect drawing earns 30 + 40 + 30 = 100. In practice, scores above 80 require knowing the country's position within ~100 km, covering most of its area, and roughly following
 its real border shape.
-
-## What the Score Tiers Mean
-
-| Score | Label | What it means |
-|-------|-------|---------------|
-| 80–100 | Excellent | You could draw this on a blank map and a geographer would recognize it |
-| 60–79 | Good | Solid geographic knowledge - right place, right general shape |
-| 40–59 | Okay | You know roughly where this is but the shape needs work |
-| 10–39 | Poor | Some overlap, but significant errors in position or shape |
-| 0–9 | Miss | The drawing didn't meaningfully overlap the target |
 
 ## A Metric That's Computed but Not Scored: Hausdorff Distance
 
