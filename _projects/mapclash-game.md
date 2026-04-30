@@ -20,18 +20,26 @@ generous: every component can only *add* points, nothing subtracts.
 
 Before even looking at the shape you drew, MapClash asks: did you put it in the right part of the map?
 
-It computes the **centroid** (geographic center of mass) of both the real border and your drawing, then measures the straight-line distance between them in degrees of
-latitude/longitude. One degree is roughly 111 kilometers at the equator.
+It computes the **centroid** (geographic center of mass) of both the real border and your drawing, then measures the **great-circle (haversine) distance** between them in
+kilometers.
 
 The formula is linear:
 
-> **Location = 30 × max(0, 1 − centroid_distance / 12)**
+> **Location = 30 × max(0, 1 − centroid_distance_km / 1200)**
 
-At 0° of error (dead center), you earn the full 30 points. The score falls off linearly, reaching zero at 12° - roughly the width of the Sahara Desert, or the distance from New
-York to the Florida Keys. Anything beyond 12° earns nothing for location.
+At 0 km of error (dead center), you earn the full 30 points. The score falls off linearly, reaching zero at 1200 km - roughly the distance from New York to Atlanta, or the
+east-west width of Texas. Anything beyond 1200 km earns nothing for location.
 
 For countries made up of multiple landmasses (like Indonesia or Fiji), the centroid is **area-weighted**: larger islands pull the center of mass toward them, so the centroid
 reflects where most of the country's land actually is.
+
+### Why kilometers, not degrees
+
+Distances are measured in great-circle kilometers, not in degrees of latitude/longitude. This matters because one degree of *longitude* shrinks toward the poles - 111 km at the
+equator, ~78 km at France's latitude, ~55 km at the Arctic Circle - while one degree of *latitude* stays at ~111 km everywhere. An earlier version of the scorer used raw
+Euclidean distance in degree-space, which silently over-penalized east-west errors at higher latitudes: a near-perfect pentagon over France could score in the 40s while the
+same shape over Texas scored 80+. Switching every distance metric to haversine km makes the score uniform across all latitudes - the geometry of the Earth no longer leaks into
+the score.
 
 ### 2. Coverage (0–40 points): "How much of the target did you cover?"
 
@@ -43,7 +51,7 @@ outside the target* equally.
 
 **Recall** is more forgiving. It measures what fraction of the *real* shape's area you managed to cover: intersection area divided by true area. If you traced one island of Fiji
 perfectly but missed the other island entirely, recall would still be high (you covered a lot of what's there), even though IoU would be low (your drawing covers only part of the
- whole country).
+whole country).
 
 The system uses whichever tells the more generous story:
 
@@ -60,20 +68,23 @@ The square root is critical for making the game feel rewarding. Without it, 25% 
 getting a quarter of a country right from memory is genuinely impressive and should feel like it. The curve is steepest at the low end, so even rough attempts with partial
 overlap earn meaningful credit.
 
+Areas are computed geodesically (true square meters on the WGS84 ellipsoid, via Turf.js), so IoU and recall are already latitude-independent - the same correctness fix that
+Location needed was never needed here.
+
 ### 3. Shape Fidelity (0–30 points): "How closely did your edges follow the real border?"
 
 This component rewards players who trace the actual contours rather than drawing a rough blob in the right location.
 
 The system places 200 evenly-spaced sample points along the boundary of the real shape. For each of those 200 points, it finds the closest point on your drawing's boundary and
-measures the distance. The **mean boundary distance** is the average of all 200 of those closest-point distances, measured in degrees.
+measures the great-circle distance in kilometers. The **mean boundary distance** is the average of all 200 of those closest-point distances.
 
 For multi-part territories, the 200 sample points are distributed proportionally across all landmasses based on their perimeter length. A large island with a long coastline gets
 more sample points than a small one.
 
-> **Shape = 30 × max(0, 1 − mean_boundary_distance / 6)**
+> **Shape = 30 × max(0, 1 − mean_boundary_distance_km / 600)**
 
-At 0° mean distance (your edges perfectly trace the real border), you earn 30 points. The score reaches zero at 6° - a very generous threshold, roughly the north-to-south span of
- a country like Germany. Only wildly inaccurate shapes score zero here.
+At 0 km mean distance (your edges perfectly trace the real border), you earn 30 points. The score reaches zero at 600 km - a very generous threshold, roughly the distance from
+Boston to Washington DC, or the length of the United Kingdom. Only wildly inaccurate shapes score zero here.
 
 Crucially, this is a **bonus, not a penalty**. Drawing a rough polygon tightly around the correct region earns decent Shape points. You're never punished for not knowing the
 precise wiggle of a coastline - you're rewarded if you do.
@@ -88,8 +99,8 @@ Any drawing that overlaps the target at all - even a tiny corner - earns a minim
 >
 > **Clamped to [5, 100] if any overlap exists, [0, 100] otherwise.**
 
-A perfect drawing earns 30 + 40 + 30 = 100. In practice, scores above 80 require knowing the country's position within a degree or two, covering most of its area, and roughly
-following its real border shape.
+A perfect drawing earns 30 + 40 + 30 = 100. In practice, scores above 80 require knowing the country's position within ~100 km, covering most of its area, and roughly following
+its real border shape.
 
 ## What the Score Tiers Mean
 
@@ -103,8 +114,9 @@ following its real border shape.
 
 ## A Metric That's Computed but Not Scored: Hausdorff Distance
 
-The system also computes the **Hausdorff distance** - the single worst-case error between the two boundaries. Think of it as: "what's the farthest any point on the real border is
- from the nearest point on your drawing?" This captures outlier spikes - a single peninsula you missed, or a corner that juts out far from reality.
+The system also computes the **Hausdorff distance** - the single worst-case error between the two boundaries, also in great-circle kilometers. Think of it as: "what's the
+farthest any point on the real border is from the nearest point on your drawing?" This captures outlier spikes - a single peninsula you missed, or a corner that juts out far
+from reality.
 
 Hausdorff is logged for diagnostic purposes but deliberately excluded from the score formula. Including it made the game feel punishing: one missed peninsula could tank an
 otherwise excellent drawing. The mean boundary distance already captures overall shape quality without being dominated by single outliers.
@@ -115,4 +127,14 @@ Earlier versions of the scoring used a subtractive formula: start from a maximum
 drawing with 47% IoU, placed in roughly the right spot, scored 12 out of 100. Players who clearly knew the geography felt punished.
 
 The additive approach - where every component only adds points - means that knowledge is always rewarded. Knowing *where* a country is earns points even if your shape is rough.
-Getting the shape right earns points even if you placed it a few degrees off. The score reflects the sum of what you know, not the product of perfection across every dimension.
+Getting the shape right earns points even if you placed it a few hundred kilometers off. The score reflects the sum of what you know, not the product of perfection across every
+dimension.
+
+Key edits:
+- Location: degrees → great-circle km; 12° → 1200 km; example landmark updated to NY→Atlanta / width of Texas.
+- Added a "Why kilometers, not degrees" subsection explaining the latitude-bias bug and fix (concrete France-vs-Texas example).
+- Coverage: noted that IoU/recall use geodesic areas already, so the same fix wasn't needed there.
+- Shape: degrees → km; 6° → 600 km; example landmark updated to Boston→DC / length of the UK.
+- Final score: "within a degree or two" → "within ~100 km."
+- Hausdorff: noted it's also in km now.
+- Closing paragraph: "few degrees off" → "few hundred kilometers off."
