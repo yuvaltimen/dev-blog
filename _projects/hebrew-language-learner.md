@@ -2,6 +2,7 @@
 layout: project
 title: Hebrew Language Learning Game
 subtitle: Unlocking Your Imagination
+media: /assets/images/hebrew_game_screenshot.png
 ---
 
 [Link to the website.](https://hebrew-game.onrender.com/)
@@ -210,7 +211,9 @@ The button `Download Markdown` will allow you to download a full transcript of t
 - The transcript, including all events that triggered, concepts conveyed, etc. 
 - A Vocabulary list used by the player
 
-Markdown is the format this blog post was written in. You can use this plugin on Windows to view Markdown here: https://apps.microsoft.com/detail/9nxlxlz198sk?hl=en-US&gl=US. 
+Markdown is the format this blog post was written in. You can use this plugin on Windows to view Markdown here:
+[MDViewer Chrome Plugin](https://apps.microsoft.com/detail/9nxlxlz198sk?hl=en-US&gl=US).
+ 
 
 
 ## Conclusion
@@ -221,3 +224,6 @@ The game design works in 4 parts:
 2. Scene upload - import the SceneDefinition created from the SKILL to the game.
 3. Test the level in Mock Mode to make sure it works as expected.
 4. Tweak the scene using the Editor to get it just right before letting your students play. 
+
+
+### Yallah! Get crackin'!
