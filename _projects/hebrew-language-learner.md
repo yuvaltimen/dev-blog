@@ -54,7 +54,7 @@ The game's levels are all specified in a custom format called a `SceneDefinition
 - a list of _triggers_
 
 If you want to see an example of what this `SceneDefinition` looks like - here's an [example](https://github.com/yuvaltimen/hebrew_game/blob/main/src/seedLevels/bakery.json).
-It might look like a bunch of structured data, but it's actually a bunch of key-value pairs, encoding facts about the scene.
+It might look like a bunch of garbled data, but it's actually an organized set of key-value pairs, encoding facts about the scene.
 
 But  making humans write this file manually would be a bad use of time, so I've added 2 better ways to create it. 
 
@@ -63,7 +63,8 @@ but it can be cumbersome (though entirely possible) to create a scene from scrat
 
 So that's why I also created the SKILL file. Go to this link to see the SKILL file:
 
-https://github.com/yuvaltimen/hebrew_game/blob/main/.claude/skills/scene-builder/SKILL.md
+[https://github.com/yuvaltimen/hebrew_game/blob/main/.claude/skills/scene-builder/SKILL.md](https://github.com/yuvaltimen/hebrew_game/blob/main/.claude/skills/scene-builder/SKILL.md
+)
 
 You can read through it, but what it's basically doing is providing a ton of technical information about _how to construct_ the `SceneDefinition` file, given a prompt.
 
