@@ -110,7 +110,7 @@ In the top right, you can see two buttons: `Import JSON` and `+ New Level`.
 
 Click on `Import JSON` and either paste in your `SceneDefinition` output or upload the file from your computer. You should see a message that it validates cleanly and is ready to import: 
 
-<img src="{{ site.baseurl }}/assets/images/Hebrew_Game_Json_Upload.png" height="400"/>{:style="display:block; margin-left:auto; margin-right:auto"}
+<img src="{{ site.baseurl }}/assets/images/Hebrew_Game_Json_upload.png" height="400"/>{:style="display:block; margin-left:auto; margin-right:auto"}
 
 
 Click Import and you can now test the scene.
