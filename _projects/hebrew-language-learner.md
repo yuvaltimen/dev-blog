@@ -191,6 +191,24 @@ An Entity can be many things:
 - an Event (some event that happened - this allows drama, such as the underlying reason for some NPCs to have a certain relationship)
 - Lore - this is just backstory. For example, this might include backstory about some Event that caused two NPCs to develop a bad Relationship
 
+### IMPORTANT:
+
+Every NPC comes with a set of pre-configured Mock Mode responses. You might want to see which keywords trigger those responses, that way you can test the game by using these exact keywords.
+
+To do this, go to the Editor, scroll to the Entities section, click on the NPC, and look for the section called `Mock responses`:
+
+<img src="{{ site.baseurl }}/assets/images/Hebrew_Game_Mock_responses.png" height="400"/>{:style="display:block; margin-left:auto; margin-right:auto"}
+
+If you click to expand this section, you'll see multiple responses. You can see that for each response, there's:
+- a set of comma-separated keywords that trigger this response
+- an optional `Recognized Concept` that would be triggered if using a real LLM - ie. what concept the LLM would recognize the player is trying to convey
+- an  optional `Revealed Concept` that would be triggered if using a real LLM - ie. what fact the LLM would respond with to the player
+
+<img src="{{ site.baseurl }}/assets/images/Hebrew_Game_Mock_response_section_expanded.png" height="400"/>{:style="display:block; margin-left:auto; margin-right:auto"}
+
+This is what allows you to test the game mechanics. In a real LLM mode, the AI would decide when the player has adequately conveyed the concept, and would then respond with the correct fact. 
+This Mock Mode allows you to test that the LLM would work properly without actually using an LLM. 
+
 ### Concepts
 
 Concepts are the facts in our world. Concepts are what actually drives the level forward - when a player discovers a Concept through conversation, it gives them information about how to proceed with the level. In some cases, when a player learns a Concept, it will end the game. 
