@@ -163,8 +163,61 @@ website, and it was actually generated using the SKILL file. Take a moment to re
 
 Let's go by section:
 
-First, we see the Tools. This is just tiles we can place on the map to edit the setting and make our world feel like the setting we want to convey. An important note here is that the player cannot walk on wall or water tiles.
+### Tools
 
-Next comes the Scene. We see the difficulty level, the objectives, the success criteria, the setting, era, register, and atmosphere. Feel free to update any of these as you see fit for your scene.
+This is just tiles we can place on the map to edit the setting and make our world feel like the setting we want to convey. An important note here is that the player cannot walk on wall or water tiles.
 
-Next we see Entites. 
+### Scene
+
+We see the difficulty level, the objectives, the success criteria, the setting, era, register, and atmosphere. Feel free to update any of these as you see fit for your scene.
+
+### Entities
+
+Entities are the "things" in the world that the AIs know about. 
+Entities are the meat of the game, because we can define Entities in ways that make the setting feel rich and allow the game mechanics to work.
+When we create an Entity, we can add descriptions and attributes to it, which allows the AI to understand how the world works according to our scene. 
+
+It's worth reading the attributes and descriptions of Entities. They should be mostly self-explanatory.
+In most cases, you'll probably stick to mostly using NPCs and Objects, but it's worth knowing about all the Entity types.
+
+An Entity can be many things:
+
+- an NPC (Non Playable Character, ie. an AI)
+- an Object (ie. the 5 Shekel note on the floor)
+- a Location (some important place to the story - for example, the city some NPC grew up in, or the farm next door)
+- a Relationship (between two NPCs - this allows drama or interpersonal dynamics to arise)
+- an Event (some event that happened - this allows drama, such as the underlying reason for some NPCs to have a certain relationship)
+- Lore - this is just backstory. For example, this might include backstory about some Event that caused two NPCs to develop a bad Relationship
+
+### Concepts
+
+Concepts are the facts in our world. Concepts are what actually drives the level forward - when a player discovers a Concept through conversation, it gives them information about how to proceed with the level. In some cases, when a player learns a Concept, it will end the game. 
+
+### Triggers
+
+A trigger is an event that fires when a certain action is performed: for example, picking up an object, giving an object to an NPC, or learning a certain Concept will cause a trigger. Look at the triggers configured for your level to understand how it works.
+
+
+## Ending the Game
+
+When the game ends, the student will see a screen like this:
+
+<img src="{{ site.baseurl }}/assets/images/Hebrew_Game_End_scene.png" height="400"/>{:style="display:block; margin-left:auto; margin-right:auto"}
+
+The button `Download Markdown` will allow you to download a full transcript of the level which you can grade. It includes:
+
+- Metadata about the level duration, player, and mode (Mock Mode or real LLM)
+- The transcript, including all events that triggered, concepts conveyed, etc. 
+- A Vocabulary list used by the player
+
+Markdown is the format this blog post was written in. You can use this plugin on Windows to view Markdown here: https://apps.microsoft.com/detail/9nxlxlz198sk?hl=en-US&gl=US. 
+
+
+## Conclusion
+
+The game design works in 4 parts:
+
+1. Scene creation - use the SKILL to create a scene.
+2. Scene upload - import the SceneDefinition created from the SKILL to the game.
+3. Test the level in Mock Mode to make sure it works as expected.
+4. Tweak the scene using the Editor to get it just right before letting your students play. 
